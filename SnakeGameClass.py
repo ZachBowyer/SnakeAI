@@ -31,7 +31,7 @@ class SnakeGameClass:
         # FPS (frames per second) controller
         self.fps_controller = pygame.time.Clock()
 
-        # Game variables
+        #Game variables
         self.snake_pos = [100, 50]
         self.snake_body = [[100, 50], [100-10, 50], [100-(2*10), 50]]
         self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]

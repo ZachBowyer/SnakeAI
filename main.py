@@ -1,9 +1,13 @@
 from SnakeGameClass import SnakeGameClass
+from RandomBot import RandomBot
+
 G = SnakeGameClass(29, 500, 500)
+B = RandomBot()
 
 while(True):
-    G.loopBot('DOWN', True)
-    print(G.get_score())
+    move = B.returnMove(G.getCurrentBoard())
+    G.loopBot(move, True)
     end = G.GameEnded
-    if(end == True): break
-    #print(FirstGame.getCurrentBoard())
+    if(end == True): 
+        print("This bot's fitness is", G.get_score())
+        break
