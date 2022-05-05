@@ -2,9 +2,9 @@
 Snake Eater
 Made with PyGame
 """
+#Original file, should keep like this for reference
 
 import pygame, sys, time, random
-
 
 # Difficulty settings
 # Easy      ->  10
@@ -28,11 +28,9 @@ if check_errors[1] > 0:
 else:
     print('[+] Game successfully initialised')
 
-
 # Initialise game window
 pygame.display.set_caption('Snake Eater')
 game_window = pygame.display.set_mode((frame_size_x, frame_size_y))
-
 
 # Colors (R, G, B)
 black = pygame.Color(0, 0, 0)
@@ -41,10 +39,8 @@ red = pygame.Color(255, 0, 0)
 green = pygame.Color(0, 255, 0)
 blue = pygame.Color(0, 0, 255)
 
-
 # FPS (frames per second) controller
 fps_controller = pygame.time.Clock()
-
 
 # Game variables
 snake_pos = [100, 50]
@@ -57,7 +53,6 @@ direction = 'RIGHT'
 change_to = direction
 
 score = 0
-
 
 # Game Over
 def game_over():
@@ -73,7 +68,6 @@ def game_over():
     pygame.quit()
     sys.exit()
 
-
 # Score
 def show_score(choice, color, font, size):
     score_font = pygame.font.SysFont(font, size)
@@ -85,7 +79,6 @@ def show_score(choice, color, font, size):
         score_rect.midtop = (frame_size_x/2, frame_size_y/1.25)
     game_window.blit(score_surface, score_rect)
     # pygame.display.flip()
-
 
 # Main logic
 while True:
