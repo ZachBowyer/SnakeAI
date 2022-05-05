@@ -5,7 +5,7 @@ G = SnakeGameClass(29, 500, 500)
 B = RandomBot()
 
 while(True):
-    move = B.returnMove(G.getCurrentBoard())
+    move = B.returnMove(G.getState())
     G.loopBot(move, True)
     end = G.GameEnded
     if(end == True): 
