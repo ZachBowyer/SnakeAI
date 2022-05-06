@@ -4,6 +4,7 @@ from tensorflow.keras import layers
 import numpy as np
 import random
 
+####################################################################################################################
 # https://keras.io/api/models/model/#model-class
 class NeuralNetwork(tf.keras.Model):
 
@@ -31,7 +32,9 @@ class NeuralNetwork(tf.keras.Model):
         self.model.set_weights(weights)
     
     #Used for mutating child networks (Slightly change weights and biases at random)
-    def mutateWeights(self, prob_change, amount):
+    def mutateWeights(self, prob_change, amountLower, amountUpper):
+        prob_Integer = round(1/prob_change, 0)
+
         newWeights = []
         for layer in self.model.layers:
             for x in layer.get_weights():
@@ -41,7 +44,14 @@ class NeuralNetwork(tf.keras.Model):
                 if(numDimensions == 1):
                     newBiases = []
                     for elements in x: 
-                        newBiases.append(elements+1)
+                        #Mutate if random probability hits
+                        randomNum = random.randint(1, prob_Integer-1)
+                        #Probability of adding/subtracting to weight is %50
+                        rand2 = random.randint(0,1)
+                        if(randomNum == 1):
+                            amount = random.uniform(amountLower, amountUpper)
+                            if(rand2 == 0): newBiases.append(elements+amount)
+                            else: newBiases.append(elements-amount)
                     newWeights.append(np.array(newBiases, dtype='float32'))
 
                 # If 2D layer (weight layer)
@@ -50,12 +60,26 @@ class NeuralNetwork(tf.keras.Model):
                     for inner in x:
                         newWeightsInner = []
                         for elements in inner:
+                            #Mutate if random probability hits
+                            #randomNum = random.randint(1, prob_Integer-1)
+                            #Probability of adding/subtracting to weight is %50
+                            #rand2 = random.randint(0,1)
+                            #if(randomNum == 1):
+                            #    if(rand2 == 0):
+                            #        newWeightsInner.append(elements+1)
+                            #    else:
+                            #        newWeightsInner.append(elements-1)
                             newWeightsInner.append(elements+1)
                         newWeightsOuter.append(newWeightsInner)
                     newWeights.append(np.array(newWeightsOuter, dtype='float32'))
+        self.model.set_weights(newWeights)
+####################################################################################################################
 
 #vars = tf.random.uniform(shape=(10, 20))
 vars = np.array([[1, 2, 3, 4]])
 model = NeuralNetwork()
-model.mutateWeights(0.01, 0.01)
+print(model.getWeights())
+model.mutateWeights(0.5, 0.00001, 0.01)
+print("---------")
+print(model.getWeights())
 #print(model.call(vars))
