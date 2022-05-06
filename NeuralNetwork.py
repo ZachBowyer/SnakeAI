@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import numpy as np
+import random
 
 # https://keras.io/api/models/model/#model-class
 class NeuralNetwork(tf.keras.Model):
@@ -30,31 +31,31 @@ class NeuralNetwork(tf.keras.Model):
         self.model.set_weights(weights)
     
     #Used for mutating child networks (Slightly change weights and biases at random)
-    def mutateWeights(self):
+    def mutateWeights(self, prob_change, amount):
+        newWeights = []
         for layer in self.model.layers:
-            print(layer.get_weights())
-            #newArr = np.array(layer.get_weights())
-            #print("new", newArr)
-            #layer.set_weights(layer.get_weights())
-            #newWeights = np.array(layer.get_weights())
-            #print("newW", newWeights)
-            #for weightArray in layer.get_weights():
-            #    print(weightArray)
-                #layer.set_weights(weightArray)
-            #print(layer.get_weights())
-        #for layerWeights in self.weights:   #Each layer
-        #    for tensors in layerWeights:      #Is a list of lists
-        #        print(tensors)
-        #        values = tf.keras.backend.get_value(tensors)
-        #        if values is not list: 
-        #            tensors[0] = 7
-        #            values = [values]
-        #        if values is list:
-        #            x=1
-        #        print(values)
+            for x in layer.get_weights():
+                numDimensions = len(np.shape(x))
+
+                # If 1D layer (bias layer)
+                if(numDimensions == 1):
+                    newBiases = []
+                    for elements in x: 
+                        newBiases.append(elements+1)
+                    newWeights.append(np.array(newBiases, dtype='float32'))
+
+                # If 2D layer (weight layer)
+                if(numDimensions == 2):
+                    newWeightsOuter = []
+                    for inner in x:
+                        newWeightsInner = []
+                        for elements in inner:
+                            newWeightsInner.append(elements+1)
+                        newWeightsOuter.append(newWeightsInner)
+                    newWeights.append(np.array(newWeightsOuter, dtype='float32'))
 
 #vars = tf.random.uniform(shape=(10, 20))
 vars = np.array([[1, 2, 3, 4]])
 model = NeuralNetwork()
-model.mutateWeights()
+model.mutateWeights(0.01, 0.01)
 #print(model.call(vars))
