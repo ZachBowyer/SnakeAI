@@ -52,6 +52,7 @@ class NeuralNetwork(tf.keras.Model):
                             amount = random.uniform(amountLower, amountUpper)
                             if(rand2 == 0): newBiases.append(elements+amount)
                             else: newBiases.append(elements-amount)
+                        else: newBiases.append(elements)
                     newWeights.append(np.array(newBiases, dtype='float32'))
 
                 # If 2D layer (weight layer)
@@ -61,25 +62,21 @@ class NeuralNetwork(tf.keras.Model):
                         newWeightsInner = []
                         for elements in inner:
                             #Mutate if random probability hits
-                            #randomNum = random.randint(1, prob_Integer-1)
+                            randomNum = random.randint(1, prob_Integer-1)
                             #Probability of adding/subtracting to weight is %50
-                            #rand2 = random.randint(0,1)
-                            #if(randomNum == 1):
-                            #    if(rand2 == 0):
-                            #        newWeightsInner.append(elements+1)
-                            #    else:
-                            #        newWeightsInner.append(elements-1)
-                            newWeightsInner.append(elements+1)
+                            rand2 = random.randint(0,1)
+                            if(randomNum == 1):
+                                amount = random.uniform(amountLower, amountUpper)
+                                if(rand2 == 0):
+                                    newWeightsInner.append(elements+amount)
+                                else:
+                                    newWeightsInner.append(elements-amount)
+                            else: newWeightsInner.append(elements)
                         newWeightsOuter.append(newWeightsInner)
                     newWeights.append(np.array(newWeightsOuter, dtype='float32'))
         self.model.set_weights(newWeights)
 ####################################################################################################################
-
-#vars = tf.random.uniform(shape=(10, 20))
-vars = np.array([[1, 2, 3, 4]])
-model = NeuralNetwork()
-print(model.getWeights())
-model.mutateWeights(0.5, 0.00001, 0.01)
-print("---------")
-print(model.getWeights())
+#vars = np.array([[1, 2, 3, 4]])
+#model = NeuralNetwork()
+#model.mutateWeights(0.05, 0.00001, 0.01)
 #print(model.call(vars))

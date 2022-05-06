@@ -154,6 +154,7 @@ class SnakeGameClass:
     # Code we wrote, bots will use this mainly
 
     # Get all relevant information (For bots)
+    # Return 1D array (For neural network consistency)
     def getState(self):
         return [self.snake_pos, self.direction, self.snake_body, self.frame_size_x-10, self.frame_size_y-10]
 

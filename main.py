@@ -1,8 +1,10 @@
 from SnakeGameClass import SnakeGameClass
 from RandomBot import RandomBot
+from BotTest1 import BotTest1
 
 G = SnakeGameClass(29, 500, 500)
-B = RandomBot()
+#B = RandomBot()
+B = BotTest1()
 
 while(True):
     move = B.returnMove(G.getState())
