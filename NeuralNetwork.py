@@ -13,8 +13,8 @@ class NeuralNetwork(tf.keras.Model):
         super().__init__()
         bias_initializer = tf.keras.initializers.HeNormal()
         self.model = tf.keras.Sequential()
-        self.model.add(tf.keras.layers.Dense(30, input_shape=(8,), bias_initializer=bias_initializer))
-        self.model.add(tf.keras.layers.Dense(30, bias_initializer=bias_initializer))
+        self.model.add(tf.keras.layers.Dense(50, input_shape=(8,), bias_initializer=bias_initializer))
+        self.model.add(tf.keras.layers.Dense(50, bias_initializer=bias_initializer))
         self.model.add(tf.keras.layers.Dense(4, activation='softmax'))
     
     # Returns weights/biases as list of numpy arrays

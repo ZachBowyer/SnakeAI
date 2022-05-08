@@ -21,13 +21,21 @@ for i in range(popSize):
 #print("--------")
 #print(B2.getNN().getWeights())
 
+currentHighestScore = -9999999
 while(True):
+
+    #Evaluate all population members
     for i in range(popSize):
         G = SnakeGameClass(10000, 500, 500)
         while(G.GameEnded == False):
             move = populationBots[i][0].returnMove(G.getState())
             G.loopBot(move, False)
         populationBots[i][1] = G.get_score()
+
+        # Show new 'best' game
+        #if(G.get_score() > currentHighestScore):
+        #    currentHighestScore = G.get_score()
+        #    G.rerunGameLoop()
 
     #Sort bots on best fitness
     populationBots = sorted(populationBots, key=lambda x: x[1], reverse=False)
@@ -43,8 +51,8 @@ while(True):
             G.loopBot(move, True)
     
     #Make bottom 50 from adjusted weights of top 6
-    for i in range(5):
-        for j in range(20):
+    for i in range(10):
+        for j in range(10):
             B = BotTest1()
             B.getNN().loadWeights(populationBots[49-i][0].getNN().getWeights())
             B.getNN().mutateWeights(1, 0.001, 0.1)
