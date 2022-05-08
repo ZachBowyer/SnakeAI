@@ -33,9 +33,12 @@ while(True):
         populationBots[i][1] = G.get_score()
 
         # Show new 'best' game
-        #if(G.get_score() > currentHighestScore):
-        #    currentHighestScore = G.get_score()
-        #    G.rerunGameLoop()
+        if(G.get_score() > currentHighestScore):
+            currentHighestScore = G.get_score()
+            G.rerunGameInit()
+            while(G.GameEnded == False):
+                move = populationBots[i][0].returnMove(G.getState())
+                G.rerunGameLoop(move, True)
 
     #Sort bots on best fitness
     populationBots = sorted(populationBots, key=lambda x: x[1], reverse=False)
@@ -45,10 +48,10 @@ while(True):
     print(populationBots[len(populationBots)-1][1], len(populationBots))
 
     #Sample best bot per iteration
-    G = SnakeGameClass(70, 500, 500)
-    while(G.GameEnded == False):
-            move = populationBots[len(populationBots)-1][0].returnMove(G.getState())
-            G.loopBot(move, True)
+    #G = SnakeGameClass(70, 500, 500)
+    #while(G.GameEnded == False):
+    #        move = populationBots[len(populationBots)-1][0].returnMove(G.getState())
+    #        G.loopBot(move, True)
     
     #Make bottom 50 from adjusted weights of top 6
     for i in range(10):
