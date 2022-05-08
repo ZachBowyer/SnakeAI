@@ -7,9 +7,11 @@ G = SnakeGameClass(29, 500, 500)
 B = BotTest1()
 
 while(True):
-    move = B.returnMove(G.getState())
-    G.loopBot(move, True)
+    #move = B.returnMove(G.getState())
+    #G.loopBot(move, True)
+    G.loopPlayer()
     end = G.GameEnded
+    print(G.getState())
     if(end == True): 
         print("This bot's fitness is", G.get_score())
         break

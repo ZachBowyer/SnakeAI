@@ -27,6 +27,7 @@ class SnakeGameClass:
         self.red = pygame.Color(255, 0, 0)
         self.green = pygame.Color(0, 255, 0)
         self.blue = pygame.Color(0, 0, 255)
+        self.grey = pygame.Color(105, 105, 105)
 
         # FPS (frames per second) controller
         self.fps_controller = pygame.time.Clock()
@@ -100,14 +101,10 @@ class SnakeGameClass:
             self.direction = 'RIGHT'
 
         # Moving the snake
-        if self.direction == 'UP':
-            self.snake_pos[1] -= 10
-        if self.direction == 'DOWN':
-            self.snake_pos[1] += 10
-        if self.direction == 'LEFT':
-            self.snake_pos[0] -= 10
-        if self.direction == 'RIGHT':
-            self.snake_pos[0] += 10
+        if self.direction == 'UP': self.snake_pos[1] -= 10
+        if self.direction == 'DOWN': self.snake_pos[1] += 10
+        if self.direction == 'LEFT': self.snake_pos[0] -= 10
+        if self.direction == 'RIGHT': self.snake_pos[0] += 10
 
         # Snake body growing mechanism
         self.snake_body.insert(0, list(self.snake_pos))
@@ -156,14 +153,29 @@ class SnakeGameClass:
     # Get all relevant information (For bots)
     # Return 1D array (For neural network consistency)
     def getState(self):
-        return [self.snake_pos, self.direction, self.snake_body, self.frame_size_x-10, self.frame_size_y-10]
+        #Code current snake direction as either 1,2,3,4
+        snakeDir = 1
+        if(self.direction == 'UP'): snakeDir = 1
+        elif(self.direction == 'DOWN'): snakeDir = 2
+        elif(self.direction == 'LEFT'): snakeDir = 3
+        elif(self.direction == 'RIGHT'): snakeDir = 4
+        foodX = self.food_pos[0]
+        foodY = self.food_pos[1]
+        snakeHeadX = self.snake_pos[0]
+        snakeHeadY = self.snake_pos[1]
+        snakeTailX = self.snake_body[len(self.snake_body)-1][0]
+        snakeTailY = self.snake_body[len(self.snake_body)-1][1]
+        minX = 0
+        minY = 0
+        maxX = self.frame_size_x-10
+        maxY = self.frame_size_y-10
+        #pygame.draw.rect(self.game_window, self.grey, pygame.Rect(50, 50, 10, 10))
+        #pygame.display.update()
+        return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, snakeTailX, snakeTailY, minX, minY, maxX, maxY]
 
     #Sets a state
-    def game_overBot(self):
-        self.GameEnded = True
-    
-    def get_score(self):
-        return self.score
+    def game_overBot(self): self.GameEnded = True
+    def get_score(self): return self.score
 
     #Game loop for bots
     def loopBot(self, SuppliedDirection, displayGraphics):
@@ -173,8 +185,7 @@ class SnakeGameClass:
                 sys.exit()
 
                 # Esc -> Create event to quit the game
-                if event.key == pygame.K_ESCAPE:
-                    pygame.event.post(pygame.event.Event(pygame.QUIT))
+                if event.key == pygame.K_ESCAPE: pygame.event.post(pygame.event.Event(pygame.QUIT))
 
         # Making sure the snake cannot move in the opposite direction instantaneously
         #if self.change_to == 'UP' and self.direction != 'DOWN':
@@ -187,14 +198,10 @@ class SnakeGameClass:
         #    self.direction = 'RIGHT'
 
         # Moving the snake
-        if SuppliedDirection == 'UP':
-            self.snake_pos[1] -= 10
-        if SuppliedDirection == 'DOWN':
-            self.snake_pos[1] += 10
-        if SuppliedDirection == 'LEFT':
-            self.snake_pos[0] -= 10
-        if SuppliedDirection == 'RIGHT':
-            self.snake_pos[0] += 10
+        if SuppliedDirection == 'UP': self.snake_pos[1] -= 10
+        if SuppliedDirection == 'DOWN': self.snake_pos[1] += 10
+        if SuppliedDirection == 'LEFT': self.snake_pos[0] -= 10
+        if SuppliedDirection == 'RIGHT': self.snake_pos[0] += 10
 
         # Snake body growing mechanism
         self.snake_body.insert(0, list(self.snake_pos))
@@ -223,10 +230,8 @@ class SnakeGameClass:
 
         # Game Over conditions
         # Getting out of bounds
-        if self.snake_pos[0] < 0 or self.snake_pos[0] > self.frame_size_x-10:
-            self.game_overBot()
-        if self.snake_pos[1] < 0 or self.snake_pos[1] > self.frame_size_y-10:
-            self.game_overBot()
+        if self.snake_pos[0] < 0 or self.snake_pos[0] > self.frame_size_x-10: self.game_overBot()
+        if self.snake_pos[1] < 0 or self.snake_pos[1] > self.frame_size_y-10: self.game_overBot()
         # Touching the snake body
         for block in self.snake_body[1:]:
             if self.snake_pos[0] == block[0] and self.snake_pos[1] == block[1]:
