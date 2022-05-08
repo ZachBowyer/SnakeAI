@@ -34,13 +34,14 @@ class SnakeGameClass:
         #Game variables
         self.snake_pos = [250, 250]
         self.snake_body = [[100, 50], [100-10, 50], [100-(2*10), 50]]
-        #self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
-        self.food_pos = [50, 50]
+        self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
+        #self.food_pos = [50, 50]
         self.food_spawn = True
         self.direction = 'RIGHT'
         self.change_to = self.direction
         self.score = 0
         self.GameEnded = False
+        self.HistoricalFoodList = []
     
     def game_over(self):
         self.my_font = pygame.font.SysFont('times new roman', 90)
@@ -55,7 +56,6 @@ class SnakeGameClass:
         time.sleep(3)
         pygame.quit()
         sys.exit()
-    
     
     # Score
     def show_score(self, choice, color, font, size):
@@ -89,27 +89,18 @@ class SnakeGameClass:
             # Whenever a key is pressed down
             elif event.type == pygame.KEYDOWN:
                 # W -> Up; S -> Down; A -> Left; D -> Right
-                if event.key == pygame.K_UP or event.key == ord('w'):
-                    self.change_to = 'UP'
-                if event.key == pygame.K_DOWN or event.key == ord('s'):
-                    self.change_to = 'DOWN'
-                if event.key == pygame.K_LEFT or event.key == ord('a'):
-                    self.change_to = 'LEFT'
-                if event.key == pygame.K_RIGHT or event.key == ord('d'):
-                    self.change_to = 'RIGHT'
+                if event.key == pygame.K_UP or event.key == ord('w'): self.change_to = 'UP'
+                if event.key == pygame.K_DOWN or event.key == ord('s'): self.change_to = 'DOWN'
+                if event.key == pygame.K_LEFT or event.key == ord('a'): self.change_to = 'LEFT'
+                if event.key == pygame.K_RIGHT or event.key == ord('d'): self.change_to = 'RIGHT'
                 # Esc -> Create event to quit the game
-                if event.key == pygame.K_ESCAPE:
-                    pygame.event.post(pygame.event.Event(pygame.QUIT))
+                if event.key == pygame.K_ESCAPE: pygame.event.post(pygame.event.Event(pygame.QUIT))
 
         # Making sure the snake cannot move in the opposite direction instantaneously
-        if self.change_to == 'UP' and self.direction != 'DOWN':
-            self.direction = 'UP'
-        if self.change_to == 'DOWN' and self.direction != 'UP':
-            self.direction = 'DOWN'
-        if self.change_to == 'LEFT' and self.direction != 'RIGHT':
-            self.direction = 'LEFT'
-        if self.change_to == 'RIGHT' and self.direction != 'LEFT':
-            self.direction = 'RIGHT'
+        if self.change_to == 'UP' and self.direction != 'DOWN':  self.direction = 'UP'
+        if self.change_to == 'DOWN' and self.direction != 'UP': self.direction = 'DOWN'
+        if self.change_to == 'LEFT' and self.direction != 'RIGHT': self.direction = 'LEFT'
+        if self.change_to == 'RIGHT' and self.direction != 'LEFT': self.direction = 'RIGHT'
 
         # Moving the snake
         if self.direction == 'UP': self.snake_pos[1] -= 10
@@ -129,6 +120,7 @@ class SnakeGameClass:
         # Spawning food on the screen
         if not self.food_spawn:
             self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
+            #self.good_pos = [50, 50]
         self.food_spawn = True
 
         # GFX
@@ -194,14 +186,17 @@ class SnakeGameClass:
         NWD = 0
 
         distanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
+        distanceToSnakeX = abs(snakeHeadX - foodX)
+        distanceToSnakeY = abs(snakeHeadY - foodY)
 
         #Set north direction
         #for x in self.snake_body:
-        return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, snakeTailX, snakeTailY, minX, minY, maxX, maxY, ND, NED, ED, SED, SD, SWD, WD, NWD, distanceToFood]
+        #return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, snakeTailX, snakeTailY, minX, minY, maxX, maxY, ND, NED, ED, SED, SD, SWD, WD, NWD, distanceToFood]
+        return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, distanceToFood, distanceToSnakeX, distanceToSnakeY]
+        #return [snakeDir, distanceToFood, snakeHeadX, snakeHeadY, foodX, foodY]
 
     #Sets a state
     def game_overBot(self): 
-        self.score -= 10
         self.GameEnded = True
     def get_score(self): return self.score
 
@@ -222,8 +217,7 @@ class SnakeGameClass:
         oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
 
         self.starvationTime += 1
-        if(self.starvationTime > 200):
-            self.game_overBot()
+        if(self.starvationTime > 200): self.game_overBot()
 
         # Moving the snake
         if SuppliedDirection == 'UP': self.snake_pos[1] -= 10
@@ -231,14 +225,19 @@ class SnakeGameClass:
         if SuppliedDirection == 'LEFT': self.snake_pos[0] -= 10
         if SuppliedDirection == 'RIGHT': self.snake_pos[0] += 10
 
+        #if(SuppliedDirection == 'DOWN' and self.direction == 'UP'): self.score -= 10
+        #if(SuppliedDirection == 'UP' and self.direction == 'DOWN'): self.score -= 10
+        #if(SuppliedDirection == 'RIGHT' and self.direction == 'LEFT'): self.score -= 10
+        #if(SuppliedDirection == 'LEFT' and self.direction == 'RIGHT'): self.score -= 10
+
         newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
-        if(newDistanceToFood < oldDistanceToFood): 
-            self.score += 0.01
-        else: self.score -= 0.001
+        if(newDistanceToFood <= oldDistanceToFood): self.score += 0.01
+        #else: self.score -= 0.001
 
         # Snake body growing mechanism
         self.snake_body.insert(0, list(self.snake_pos))
         if self.snake_pos[0] == self.food_pos[0] and self.snake_pos[1] == self.food_pos[1]:
+            self.starvationTime = 0
             self.score += 1
             self.food_spawn = False
         else:
@@ -247,6 +246,7 @@ class SnakeGameClass:
         # Spawning food on the screen
         if not self.food_spawn:
             self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
+            #self.food_pos = [400, 400]
         self.food_spawn = True
 
         if(displayGraphics == True):

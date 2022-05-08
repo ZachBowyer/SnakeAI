@@ -13,14 +13,12 @@ class NeuralNetwork(tf.keras.Model):
         super().__init__()
         bias_initializer = tf.keras.initializers.HeNormal()
         self.model = tf.keras.Sequential()
-        self.model.add(tf.keras.layers.Dense(50, input_shape=(20,), bias_initializer=bias_initializer))
-        self.model.add(tf.keras.layers.Dense(50, activation='relu', bias_initializer=bias_initializer))
-        self.model.add(tf.keras.layers.Dense(50, activation='relu', bias_initializer=bias_initializer))
+        self.model.add(tf.keras.layers.Dense(30, input_shape=(8,), bias_initializer=bias_initializer))
+        self.model.add(tf.keras.layers.Dense(30, bias_initializer=bias_initializer))
         self.model.add(tf.keras.layers.Dense(4, activation='softmax'))
     
     # Returns weights/biases as list of numpy arrays
-    def getWeights(self):
-        return self.model.get_weights()
+    def getWeights(self): return self.model.get_weights()
 
     # Given an input, run it through network and return output
     def call(self, inputs):
@@ -46,7 +44,9 @@ class NeuralNetwork(tf.keras.Model):
                     newBiases = []
                     for elements in x: 
                         #Mutate if random probability hits
-                        randomNum = random.randint(1, prob_Integer-1)
+                        randomNum = 1
+                        if(prob_change != 1): randomNum = random.randint(1, prob_Integer-1)
+
                         #Probability of adding/subtracting to weight is %50
                         rand2 = random.randint(0,1)
                         if(randomNum == 1):
@@ -63,7 +63,9 @@ class NeuralNetwork(tf.keras.Model):
                         newWeightsInner = []
                         for elements in inner:
                             #Mutate if random probability hits
-                            randomNum = random.randint(1, prob_Integer-1)
+                            randomNum = 1
+                            if(prob_change != 1): randomNum = random.randint(1, prob_Integer-1)
+
                             #Probability of adding/subtracting to weight is %50
                             rand2 = random.randint(0,1)
                             if(randomNum == 1):
