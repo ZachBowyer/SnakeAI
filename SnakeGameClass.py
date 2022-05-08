@@ -8,6 +8,7 @@ class SnakeGameClass:
         self.difficulty = speed
         self.frame_size_x = sizeX
         self.frame_size_y = sizeY
+        self.starvationTime = 0
         # Checks for errors encountered
         check_errors = pygame.init()
         # pygame.init() example output -> (6, 0)
@@ -15,8 +16,6 @@ class SnakeGameClass:
         if check_errors[1] > 0:
             print(f'[!] Had {check_errors[1]} errors when initialising game, exiting...')
             sys.exit(-1)
-        else:
-            print('[+] Game successfully initialised')
         # Initialise game window
         pygame.display.set_caption('Snake Eater')
         self.game_window = pygame.display.set_mode((self.frame_size_x, self.frame_size_y))
@@ -33,9 +32,10 @@ class SnakeGameClass:
         self.fps_controller = pygame.time.Clock()
 
         #Game variables
-        self.snake_pos = [100, 50]
+        self.snake_pos = [250, 250]
         self.snake_body = [[100, 50], [100-10, 50], [100-(2*10), 50]]
-        self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
+        #self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
+        self.food_pos = [50, 50]
         self.food_spawn = True
         self.direction = 'RIGHT'
         self.change_to = self.direction
@@ -60,7 +60,7 @@ class SnakeGameClass:
     # Score
     def show_score(self, choice, color, font, size):
         self.score_font = pygame.font.SysFont(font, size)
-        self.score_surface = self.score_font.render('Score : ' + str(self.score), True, color)
+        self.score_surface = self.score_font.render('Score : ' + str(self.score) + " - " + str(self.starvationTime), True, color)
         self.score_rect = self.score_surface.get_rect()
         if choice == 1:
             self.score_rect.midtop = (self.frame_size_x/10, 15)
@@ -69,8 +69,19 @@ class SnakeGameClass:
         self.game_window.blit(self.score_surface, self.score_rect)
         # pygame.display.flip()
 
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
     #Main game loop for people playing...
     def loopPlayer(self):
+        #self.score -= 1
+        self.starvationTime += 1
+        if(self.starvationTime > 200):
+            self.game_overBot()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -110,6 +121,7 @@ class SnakeGameClass:
         self.snake_body.insert(0, list(self.snake_pos))
         if self.snake_pos[0] == self.food_pos[0] and self.snake_pos[1] == self.food_pos[1]:
             self.score += 1
+            self.starvationTime = 0
             self.food_spawn = False
         else:
             self.snake_body.pop()
@@ -149,6 +161,7 @@ class SnakeGameClass:
 
     #####################################################################################
     # Code we wrote, bots will use this mainly
+    def manhattan(self, X1, Y1, X2, Y2): return abs(X1-X2) + abs(Y1-Y2)
 
     # Get all relevant information (For bots)
     # Return 1D array (For neural network consistency)
@@ -169,39 +182,59 @@ class SnakeGameClass:
         minY = 0
         maxX = self.frame_size_x-10
         maxY = self.frame_size_y-10
-        #pygame.draw.rect(self.game_window, self.grey, pygame.Rect(50, 50, 10, 10))
-        #pygame.display.update()
-        return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, snakeTailX, snakeTailY, minX, minY, maxX, maxY]
+
+        #Manhattan distance to closest gameEnder - Snake body or edge
+        ND = self.manhattan(snakeHeadX, snakeHeadY, snakeHeadX, minY)
+        NED = 0 
+        ED = self.manhattan(snakeHeadX, snakeHeadY, maxX, snakeHeadY)
+        SED = 0
+        SD = self.manhattan(snakeHeadX, snakeHeadY, snakeHeadX, maxY)
+        SWD = 0
+        WD = self.manhattan(snakeHeadX, snakeHeadY, minX, snakeHeadY)
+        NWD = 0
+
+        distanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
+
+        #Set north direction
+        #for x in self.snake_body:
+        return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, snakeTailX, snakeTailY, minX, minY, maxX, maxY, ND, NED, ED, SED, SD, SWD, WD, NWD, distanceToFood]
 
     #Sets a state
-    def game_overBot(self): self.GameEnded = True
+    def game_overBot(self): 
+        self.score -= 10
+        self.GameEnded = True
     def get_score(self): return self.score
 
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
     #Game loop for bots
     def loopBot(self, SuppliedDirection, displayGraphics):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
 
-                # Esc -> Create event to quit the game
-                if event.key == pygame.K_ESCAPE: pygame.event.post(pygame.event.Event(pygame.QUIT))
+        #Force bot to make moves towards food to survive...
+        foodX = self.food_pos[0]
+        foodY = self.food_pos[1]
+        snakeHeadX = self.snake_pos[0]
+        snakeHeadY = self.snake_pos[1]
+        oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
 
-        # Making sure the snake cannot move in the opposite direction instantaneously
-        #if self.change_to == 'UP' and self.direction != 'DOWN':
-        #    self.direction = 'UP'
-        #if self.change_to == 'DOWN' and self.direction != 'UP':
-        #    self.direction = 'DOWN'
-        #if self.change_to == 'LEFT' and self.direction != 'RIGHT':
-        #    self.direction = 'LEFT'
-        #if self.change_to == 'RIGHT' and self.direction != 'LEFT':
-        #    self.direction = 'RIGHT'
+        self.starvationTime += 1
+        if(self.starvationTime > 200):
+            self.game_overBot()
 
         # Moving the snake
         if SuppliedDirection == 'UP': self.snake_pos[1] -= 10
         if SuppliedDirection == 'DOWN': self.snake_pos[1] += 10
         if SuppliedDirection == 'LEFT': self.snake_pos[0] -= 10
         if SuppliedDirection == 'RIGHT': self.snake_pos[0] += 10
+
+        newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
+        if(newDistanceToFood < oldDistanceToFood): 
+            self.score += 0.01
+        else: self.score -= 0.001
 
         # Snake body growing mechanism
         self.snake_body.insert(0, list(self.snake_pos))
@@ -237,8 +270,9 @@ class SnakeGameClass:
             if self.snake_pos[0] == block[0] and self.snake_pos[1] == block[1]:
                 self.game_overBot()
 
-        self.show_score(1, self.white, 'consolas', 20)
-        # Refresh game screen
-        pygame.display.update()
+        if(displayGraphics == True):
+            self.show_score(1, self.white, 'consolas', 20)
+            # Refresh game screen
+            pygame.display.update()
         # Refresh rate
         self.fps_controller.tick(self.difficulty)
