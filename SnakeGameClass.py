@@ -80,9 +80,9 @@ class SnakeGameClass:
     #Main game loop for people playing...
     def loopPlayer(self):
         #self.score -= 1
-        self.starvationTime += 1
-        if(self.starvationTime > 200):
-            self.game_overBot()
+        #self.starvationTime += 1
+        #if(self.starvationTime > 200):
+        #    self.game_overBot()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -122,7 +122,6 @@ class SnakeGameClass:
         # Spawning food on the screen
         if not self.food_spawn:
             self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
-            self.HistoricalFoodList.append(snake.food_pos) 
             #self.good_pos = [50, 50]
         self.food_spawn = True
 
@@ -153,6 +152,19 @@ class SnakeGameClass:
         self.fps_controller.tick(self.difficulty)
 
     #####################################################################################
+    #####################################################################################
+    #####################################################################################
+    #####################################################################################
+    #####################################################################################
+    #####################################################################################
+    #####################################################################################
+    #####################################################################################
+    #####################################################################################
+    #####################################################################################
+    #####################################################################################
+    #####################################################################################
+    #####################################################################################
+    #####################################################################################
     # Code we wrote, bots will use this mainly
     def manhattan(self, X1, Y1, X2, Y2): return abs(X1-X2) + abs(Y1-Y2)
 
@@ -176,28 +188,30 @@ class SnakeGameClass:
         maxX = self.frame_size_x-10
         maxY = self.frame_size_y-10
 
+        #Check if snake can go in straight line to a food
+
         #Manhattan distance to closest gameEnder - Snake body or edge
         ND = self.manhattan(snakeHeadX, snakeHeadY, snakeHeadX, minY)
-        NED = 0 
         ED = self.manhattan(snakeHeadX, snakeHeadY, maxX, snakeHeadY)
-        SED = 0
         SD = self.manhattan(snakeHeadX, snakeHeadY, snakeHeadX, maxY)
-        SWD = 0
         WD = self.manhattan(snakeHeadX, snakeHeadY, minX, snakeHeadY)
-        NWD = 0
+        for x in self.snake_body:
+            distance = self.manhattan(snakeHeadX, snakeHeadY, x[0], x[1])
+            if(x[0] == snakeHeadX and x[1] < snakeHeadY and distance < ND): ND = distance
+            if(x[0] == snakeHeadX and x[1] > snakeHeadY and distance < SD): SD = distance
+            if(x[1] == snakeHeadY and x[0] > snakeHeadX and distance < ED): ED = distance
+            if(x[1] == snakeHeadY and x[0] < snakeHeadX and distance < WD): WD = distance
 
         distanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
         distanceToSnakeX = abs(snakeHeadX - foodX)
         distanceToSnakeY = abs(snakeHeadY - foodY)
 
-        #Set north direction
-        #for x in self.snake_body:
         #return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, snakeTailX, snakeTailY, minX, minY, maxX, maxY, ND, NED, ED, SED, SD, SWD, WD, NWD, distanceToFood]
-        return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, distanceToFood, distanceToSnakeX, distanceToSnakeY]
-        #return [snakeDir, distanceToFood, snakeHeadX, snakeHeadY, foodX, foodY]
+        return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, distanceToFood, distanceToSnakeX, distanceToSnakeY, ND, ED, SD, WD]
 
     #Sets a state
-    def game_overBot(self): self.GameEnded = True
+    def game_overBot(self): 
+        self.GameEnded = True
     def get_score(self): return self.score
 
     ##################################################################################################################
@@ -234,8 +248,8 @@ class SnakeGameClass:
         # Making sure the snake cannot move in the opposite direction instantaneously
 
         newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
-        if(newDistanceToFood <= oldDistanceToFood): self.score += 0.01
-        #else: self.score -= 0.001
+        if(newDistanceToFood < oldDistanceToFood): self.score += 0.01
+        else: self.score -= 0.01
 
         # Snake body growing mechanism
         self.snake_body.insert(0, list(self.snake_pos))
@@ -301,12 +315,13 @@ class SnakeGameClass:
     ###########################################################################################
     ###########################################################################################
     # Test
-    def rerunGameInit(self):
+    def getHistoricalFoodList(self): return self.HistoricalFoodList
+    def rerunGameInit(self, foodList):
+        self.HistoricalFoodList = foodList
         self.GameEnded = False
         self.snake_pos = [250, 250]
         self.snake_body = [[100, 50], [100-10, 50], [100-(2*10), 50]]
         self.food_pos = self.HistoricalFoodList.pop(0)
-        self.HistoricalFoodList.append(self.food_pos) 
         self.food_spawn = True
         self.direction = 'RIGHT'
         self.change_to = self.direction

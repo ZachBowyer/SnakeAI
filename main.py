@@ -1,27 +1,34 @@
 from SnakeGameClass import SnakeGameClass
 from RandomBot import RandomBot
 from BotTest1 import BotTest1
+import copy
 
-#B = RandomBot()
-#B = BotTest1()
+#Information for re-running the best game recorded
+currentHighestScore = -9999999
+bestFoodList = []
+bestBot = BotTest1()
+def reRunBestGame():
+    G = SnakeGameClass(40, 500, 500)
+    food = copy.deepcopy(bestFoodList)
+    G.rerunGameInit(food)
+    while(G.GameEnded == False):
+        move = bestBot.returnMove(G.getState())
+        G.rerunGameLoop(move, True)
 
-#Genetic algorithm
+modelPath = 'SavedModels/TestModel1'
+load = True
+
+#Create initial genetic algorithm population
 popSize = 100
 populationBots = []
-
 for i in range(popSize):
     B = BotTest1()
+    if load == True: 
+        print("Loading Bot", i, "from file..", modelPath)
+        B.loadModelFromFile(modelPath)
     populationBots.append([B,0])
 
-#B = BotTest1()
-#B2 = BotTest1()
-#B2.getNN().loadWeights(B.getNN().getWeights())
-#B2.getNN().mutateWeights(0.2, 0.0001, 0.1)
-#print(B.getNN().getWeights())
-#print("--------")
-#print(B2.getNN().getWeights())
-
-currentHighestScore = -9999999
+#Main training loop for the genetic algorithm/neural network
 while(True):
 
     #Evaluate all population members
@@ -32,38 +39,27 @@ while(True):
             G.loopBot(move, False)
         populationBots[i][1] = G.get_score()
 
-        # Show new 'best' game
+        #Store info about best bot and game
         if(G.get_score() > currentHighestScore):
+            bestFoodList = G.getHistoricalFoodList()
             currentHighestScore = G.get_score()
-            G.rerunGameInit()
-            while(G.GameEnded == False):
-                move = populationBots[i][0].returnMove(G.getState())
-                G.rerunGameLoop(move, True)
+            bestBot = populationBots[i][0]
+            bestBot.saveModelToFile(modelPath)
 
     #Sort bots on best fitness
     populationBots = sorted(populationBots, key=lambda x: x[1], reverse=False)
 
+    #Sample best bot per iteration
+    reRunBestGame()
+
     #Remove all but the bottom 50
     for i in range(len(populationBots) - 50): populationBots.pop(0)
     print(populationBots[len(populationBots)-1][1], len(populationBots))
-
-    #Sample best bot per iteration
-    #G = SnakeGameClass(70, 500, 500)
-    #while(G.GameEnded == False):
-    #        move = populationBots[len(populationBots)-1][0].returnMove(G.getState())
-    #        G.loopBot(move, True)
     
     #Make bottom 50 from adjusted weights of top 6
-    for i in range(10):
+    for i in range(20):
         for j in range(10):
             B = BotTest1()
             B.getNN().loadWeights(populationBots[49-i][0].getNN().getWeights())
             B.getNN().mutateWeights(1, 0.001, 0.1)
             populationBots.append([B,0])
-    
-#while(True):
-#    #G.loopPlayer()
-#    #print(G.getState())
-#    if(G.GameEnded == True): 
-#        print("This bot's fitness is", G.get_score())
-#        break

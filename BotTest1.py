@@ -1,6 +1,7 @@
 from NeuralNetwork import NeuralNetwork
 import numpy as np
 
+
 class BotTest1:
     def __init__(self):
         self.NN = NeuralNetwork()
@@ -17,3 +18,9 @@ class BotTest1:
         elif(dirNum == 3): return 'DOWN'
         print("Bot somehow did not choose a direction")
         return 'DOWN'
+    
+    def saveModelToFile(self, filePath):
+        self.NN.saveToFile(filePath)
+
+    def loadModelFromFile(self, filePath):
+        self.NN.loadFromFile(filePath)

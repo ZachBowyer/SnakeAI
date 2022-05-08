@@ -13,9 +13,11 @@ class NeuralNetwork(tf.keras.Model):
         super().__init__()
         bias_initializer = tf.keras.initializers.HeNormal()
         self.model = tf.keras.Sequential()
-        self.model.add(tf.keras.layers.Dense(50, input_shape=(8,), bias_initializer=bias_initializer))
+        self.model.add(keras.Input(shape=(12,)))
+        self.model.add(tf.keras.layers.Dense(50, bias_initializer=bias_initializer))
         self.model.add(tf.keras.layers.Dense(50, bias_initializer=bias_initializer))
         self.model.add(tf.keras.layers.Dense(4, activation='softmax'))
+        self.model.compile()
     
     # Returns weights/biases as list of numpy arrays
     def getWeights(self): return self.model.get_weights()
@@ -29,6 +31,10 @@ class NeuralNetwork(tf.keras.Model):
     #Used in creating new instances (Load weights from parent)
     def loadWeights(self, weights):
         self.model.set_weights(weights)
+
+    #Save and load model from file
+    def saveToFile(self, filePath): self.model.save(filePath)
+    def loadFromFile(self, filePath): self.model = keras.models.load_model(filePath)
     
     #Used for mutating child networks (Slightly change weights and biases at random)
     def mutateWeights(self, prob_change, amountLower, amountUpper):
