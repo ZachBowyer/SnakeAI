@@ -91,6 +91,14 @@ class SnakeGameClass:
         #self.starvationTime += 1
         #if(self.starvationTime > 200):
         #    self.game_overBot()
+        foodX = self.food_pos[0]
+        foodY = self.food_pos[1]
+        snakeHeadX = self.snake_pos[0]
+        snakeHeadY = self.snake_pos[1]
+        self.HistoricalSnakePositions.append([snakeHeadX, snakeHeadY])
+        self.starvationTime += 1
+        if(self.starvationTime > 150): self.game_overBot()
+        oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -117,6 +125,9 @@ class SnakeGameClass:
         if self.direction == 'DOWN': self.snake_pos[1] += 10
         if self.direction == 'LEFT': self.snake_pos[0] -= 10
         if self.direction == 'RIGHT': self.snake_pos[0] += 10
+
+        newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
+        print(newDistanceToFood < oldDistanceToFood)
 
         # Snake body growing mechanism
         self.snake_body.insert(0, list(self.snake_pos))
@@ -236,7 +247,7 @@ class SnakeGameClass:
         #angle = angle * 360 / (2*math.pi)
 
         #return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, snakeTailX, snakeTailY, minX, minY, maxX, maxY, ND, NED, ED, SED, SD, SWD, WD, NWD, distanceToFood]
-        return [snakeDir, distanceToFood, distanceToFoodX, distanceToFoodY, ND, ED, SD, WD, DFN, DFS, DFE, DFW, DFNE, DFNW, DFSE, DFSW]
+        return [snakeDir, snakeHeadX, snakeHeadY, distanceToFoodX, distanceToFoodY]
 
     #Sets a state
     def game_overBot(self): self.GameEnded = True
@@ -261,7 +272,6 @@ class SnakeGameClass:
         self.HistoricalSnakePositions.append([snakeHeadX, snakeHeadY])
         self.starvationTime += 1
         if(self.starvationTime > 150): self.game_overBot()
-
         oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
 
         #Making sure the snake cannot move in the opposite direction instantaneously

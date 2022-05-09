@@ -24,7 +24,7 @@ def reRunBestGame():
         move = bestBot.returnMove(G.getState())
         G.rerunGameLoop(move, True)
 
-modelPath = 'SavedModels/Model_16_norm_20_20_4_Board500-500_V2'
+modelPath = 'SavedModels/Model_5_norm_20_20_4_Board500-500'
 load = False
 
 #Create initial genetic algorithm population
@@ -67,13 +67,13 @@ while(True):
         move = populationBots[len(populationBots)-1][0].returnMove(G.getState())
         G.loopBot(move, True)
 
-    #Sample best bot per iteration
-    #reRunBestGame()
-
     #print("Removing all but bottom ...", int(popSize/2))
     #Remove all but the bottom 50
     for i in range(len(populationBots) - int(popSize/2)): populationBots.pop(0)
-    print(populationBots[len(populationBots)-1][1], len(populationBots))
+    avgFitness = 0
+    for i in range(len(populationBots)): avgFitness += populationBots[i][1]
+    avgFitness /= len(populationBots)
+    print("Average fitness of this generation is:", avgFitness)
     
     #print("Creating", int(popSize/2), "more")
     #Make bottom 50 from adjusted weights of top 6
@@ -81,5 +81,5 @@ while(True):
         for j in range(10):
             B = BotTest1()
             B.getNN().loadWeights(populationBots[49-i][0].getNN().getWeights())
-            B.getNN().mutateWeights(1, 0.001, 0.1)
+            B.getNN().mutateWeights(1, 0.001, 0.05)
             populationBots.append([B,-9999999])
