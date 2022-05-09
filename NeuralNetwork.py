@@ -13,9 +13,10 @@ class NeuralNetwork(tf.keras.Model):
         super().__init__()
         bias_initializer = tf.keras.initializers.HeNormal()
         self.model = tf.keras.Sequential()
-        self.model.add(keras.Input(shape=(12,)))
-        self.model.add(tf.keras.layers.Dense(50, bias_initializer=bias_initializer))
-        self.model.add(tf.keras.layers.Dense(50, bias_initializer=bias_initializer))
+        self.model.add(keras.Input(shape=(8,)))
+        #self.model.add(tf.keras.layers.Normalization(axis=1))
+        self.model.add(tf.keras.layers.Dense(25, activation="relu", bias_initializer=bias_initializer))
+        self.model.add(tf.keras.layers.Dense(25, activation="relu", bias_initializer=bias_initializer))
         self.model.add(tf.keras.layers.Dense(4, activation='softmax'))
         self.model.compile()
     
@@ -23,10 +24,7 @@ class NeuralNetwork(tf.keras.Model):
     def getWeights(self): return self.model.get_weights()
 
     # Given an input, run it through network and return output
-    def call(self, inputs):
-        #ans = self.model.predict(inputs)
-        ans = self.model(inputs)
-        return ans
+    def call(self, inputs): return self.model(inputs)
 
     #Used in creating new instances (Load weights from parent)
     def loadWeights(self, weights):

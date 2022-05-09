@@ -1,4 +1,6 @@
 import pygame, sys, time, random
+import numpy as np
+import math
 
 #Wrapper around the Snake code supplied
 class SnakeGameClass:
@@ -201,17 +203,20 @@ class SnakeGameClass:
             if(x[0] == snakeHeadX and x[1] > snakeHeadY and distance < SD): SD = distance
             if(x[1] == snakeHeadY and x[0] > snakeHeadX and distance < ED): ED = distance
             if(x[1] == snakeHeadY and x[0] < snakeHeadX and distance < WD): WD = distance
-
         distanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
-        distanceToSnakeX = abs(snakeHeadX - foodX)
-        distanceToSnakeY = abs(snakeHeadY - foodY)
+        distanceToFoodX = snakeHeadX - foodX
+        distanceToFoodY = snakeHeadY - foodY
+        
+        #Angle between the food and the snake head
+        #angle = 0
+        #angle = math.atan2(snakeHeadY, snakeHeadX) - math.atan2(foodY, foodX)
+        #angle = angle * 360 / (2*math.pi)
 
         #return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, snakeTailX, snakeTailY, minX, minY, maxX, maxY, ND, NED, ED, SED, SD, SWD, WD, NWD, distanceToFood]
-        return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, distanceToFood, distanceToSnakeX, distanceToSnakeY, ND, ED, SD, WD]
+        return [snakeDir, distanceToFood, distanceToFoodX, distanceToFoodY, ND, ED, SD, WD]
 
     #Sets a state
-    def game_overBot(self): 
-        self.GameEnded = True
+    def game_overBot(self): self.GameEnded = True
     def get_score(self): return self.score
 
     ##################################################################################################################
@@ -222,34 +227,36 @@ class SnakeGameClass:
     ##################################################################################################################
     #Game loop for bots
     def loopBot(self, SuppliedDirection, displayGraphics):
-
+        
+        #else: self.score -= 0.01
+        #self.score += 0.01
         #Force bot to make moves towards food to survive...
         foodX = self.food_pos[0]
         foodY = self.food_pos[1]
         snakeHeadX = self.snake_pos[0]
         snakeHeadY = self.snake_pos[1]
+        self.HistoricalSnakePositions.append([snakeHeadX, snakeHeadY])
+        self.starvationTime += 1
+        if(self.starvationTime > 150): self.game_overBot()
+
         oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
 
-        self.HistoricalSnakePositions.append([snakeHeadX, snakeHeadY])
-
-        self.starvationTime += 1
-        if(self.starvationTime > 200): self.game_overBot()
+        #Making sure the snake cannot move in the opposite direction instantaneously
+        if SuppliedDirection == 'UP' and self.direction == 'DOWN': self.score -= 9999
+        if SuppliedDirection == 'DOWN' and self.direction == 'UP': self.score -= 9999
+        if SuppliedDirection == 'LEFT' and self.direction == 'RIGHT': self.score -= 9999
+        if SuppliedDirection == 'RIGHT' and self.direction == 'LEFT': self.score -= 9999
 
         # Moving the snake
         if SuppliedDirection == 'UP': self.snake_pos[1] -= 10
         if SuppliedDirection == 'DOWN': self.snake_pos[1] += 10
         if SuppliedDirection == 'LEFT': self.snake_pos[0] -= 10
         if SuppliedDirection == 'RIGHT': self.snake_pos[0] += 10
-
-        #if(SuppliedDirection == 'DOWN' and self.direction == 'UP'): self.score -= 10
-        #if(SuppliedDirection == 'UP' and self.direction == 'DOWN'): self.score -= 10
-        #if(SuppliedDirection == 'RIGHT' and self.direction == 'LEFT'): self.score -= 10
-        #if(SuppliedDirection == 'LEFT' and self.direction == 'RIGHT'): self.score -= 10
-        # Making sure the snake cannot move in the opposite direction instantaneously
+        self.direction = SuppliedDirection
 
         newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
         if(newDistanceToFood < oldDistanceToFood): self.score += 0.01
-        else: self.score -= 0.01
+        #else: self.score -= 0.01
 
         # Snake body growing mechanism
         self.snake_body.insert(0, list(self.snake_pos))
@@ -339,6 +346,13 @@ class SnakeGameClass:
         self.starvationTime += 1
         if(self.starvationTime > 200): self.game_overBot()
 
+        #Making sure the snake cannot move in the opposite direction instantaneously
+        if SuppliedDirection == 'UP' and self.direction == 'DOWN': self.score -= 9999
+        if SuppliedDirection == 'DOWN' and self.direction == 'UP': self.score -= 9999
+        if SuppliedDirection == 'LEFT' and self.direction == 'RIGHT': self.score -= 9999
+        if SuppliedDirection == 'RIGHT' and self.direction == 'LEFT': self.score -= 9999
+        self.direction = SuppliedDirection
+
         # Moving the snake
         if SuppliedDirection == 'UP': self.snake_pos[1] -= 10
         if SuppliedDirection == 'DOWN': self.snake_pos[1] += 10
@@ -346,8 +360,8 @@ class SnakeGameClass:
         if SuppliedDirection == 'RIGHT': self.snake_pos[0] += 10
 
         newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
-        if(newDistanceToFood <= oldDistanceToFood): self.score += 0.01
-        #else: self.score -= 0.001
+        if(newDistanceToFood < oldDistanceToFood): self.score += 0.01
+        #else: self.score -= 0.01
 
         # Snake body growing mechanism
         self.snake_body.insert(0, list(self.snake_pos))
