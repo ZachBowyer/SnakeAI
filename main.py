@@ -3,6 +3,15 @@ from RandomBot import RandomBot
 from BotTest1 import BotTest1
 import copy
 
+
+#B = BotTest1()
+#B2 = BotTest1()
+#B2.getNN().loadWeights(B.getNN().getWeights())
+#B2.getNN().mutateWeights(1, 0.001, 0.1)
+#print(B.getNN().getWeights())
+#print("-------------")
+#print(B2.getNN().getWeights())
+
 #Information for re-running the best game recorded
 currentHighestScore = -9999999
 bestFoodList = []
@@ -15,7 +24,7 @@ def reRunBestGame():
         move = bestBot.returnMove(G.getState())
         G.rerunGameLoop(move, True)
 
-modelPath = 'SavedModels/Model_8_norm_25_25_4_Board500-500'
+modelPath = 'SavedModels/Model_16_norm_20_20_4_Board500-500_V2'
 load = False
 
 #Create initial genetic algorithm population
@@ -31,6 +40,7 @@ for i in range(popSize):
 #Main training loop for the genetic algorithm/neural network
 while(True):
 
+    #print("Eval all pop members")
     #Evaluate all population members
     for i in range(popSize):
         G = SnakeGameClass(99999, 500, 500)
@@ -45,22 +55,30 @@ while(True):
             bestFoodList = G.getHistoricalFoodList()
             currentHighestScore = G.get_score()
             bestBot = populationBots[i][0]
-            print(len(bestBot.getNN().getWeights()))
             bestBot.saveModelToFile(modelPath)
 
     #Sort bots on best fitness
+    #print("Sorting...")
     populationBots = sorted(populationBots, key=lambda x: x[1], reverse=False)
 
-    #Sample best bot per iteration
-    reRunBestGame()
+    #Sample best bot of that generation
+    G = SnakeGameClass(70, 500, 500)
+    while(G.GameEnded == False):
+        move = populationBots[len(populationBots)-1][0].returnMove(G.getState())
+        G.loopBot(move, True)
 
+    #Sample best bot per iteration
+    #reRunBestGame()
+
+    #print("Removing all but bottom ...", int(popSize/2))
     #Remove all but the bottom 50
-    for i in range(len(populationBots) - 50): populationBots.pop(0)
+    for i in range(len(populationBots) - int(popSize/2)): populationBots.pop(0)
     print(populationBots[len(populationBots)-1][1], len(populationBots))
     
+    #print("Creating", int(popSize/2), "more")
     #Make bottom 50 from adjusted weights of top 6
-    for i in range(25):
-        for j in range(2):
+    for i in range(10):
+        for j in range(10):
             B = BotTest1()
             B.getNN().loadWeights(populationBots[49-i][0].getNN().getWeights())
             B.getNN().mutateWeights(1, 0.001, 0.1)

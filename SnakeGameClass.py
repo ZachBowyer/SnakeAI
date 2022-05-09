@@ -42,7 +42,13 @@ class SnakeGameClass:
         self.HistoricalFoodList.append(self.food_pos) 
         #self.food_pos = [50, 50]
         self.food_spawn = True
-        self.direction = 'RIGHT'
+        
+        r = random.randrange(1, 5)
+        if(r == 1): self.direction = 'RIGHT'
+        if(r == 2): self.direction = 'UP'
+        if(r == 3): self.direction = 'DOWN'
+        if(r == 4): self.direction = 'LEFT'
+
         self.change_to = self.direction
         self.score = 0
         self.GameEnded = False
@@ -190,7 +196,27 @@ class SnakeGameClass:
         maxX = self.frame_size_x-10
         maxY = self.frame_size_y-10
 
-        #Check if snake can go in straight line to a food
+        distanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
+        distanceToFoodX = snakeHeadX - foodX
+        distanceToFoodY = snakeHeadY - foodY
+
+        #Check if snake is in a direct line to food
+        DFN = 0 
+        if(snakeHeadX == foodX and foodY < snakeHeadY): DFN = 1
+        DFS = 0 
+        if(snakeHeadX == foodX and foodY > snakeHeadY): DFS = 1
+        DFE = 0 
+        if(snakeHeadY == foodY and foodX > snakeHeadX): DFE = 1
+        DFW = 0 
+        if(snakeHeadY == foodY and foodX < snakeHeadX): DFW = 1
+        DFNE = 0 
+        if(distanceToFoodX == -distanceToFoodY and foodY < snakeHeadY): DFNE = 1 
+        DFNW = 0 
+        if(distanceToFoodX == distanceToFoodY and foodY < snakeHeadY): DFNW = 1 
+        DFSE = 0 
+        if(distanceToFoodX == distanceToFoodY and foodY > snakeHeadY): DFSE = 1 
+        DFSW = 0 
+        if(distanceToFoodX == -distanceToFoodY and foodY > snakeHeadY): DFSW = 1 
 
         #Manhattan distance to closest gameEnder - Snake body or edge
         ND = self.manhattan(snakeHeadX, snakeHeadY, snakeHeadX, minY)
@@ -203,17 +229,14 @@ class SnakeGameClass:
             if(x[0] == snakeHeadX and x[1] > snakeHeadY and distance < SD): SD = distance
             if(x[1] == snakeHeadY and x[0] > snakeHeadX and distance < ED): ED = distance
             if(x[1] == snakeHeadY and x[0] < snakeHeadX and distance < WD): WD = distance
-        distanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
-        distanceToFoodX = snakeHeadX - foodX
-        distanceToFoodY = snakeHeadY - foodY
-        
+
         #Angle between the food and the snake head
         #angle = 0
         #angle = math.atan2(snakeHeadY, snakeHeadX) - math.atan2(foodY, foodX)
         #angle = angle * 360 / (2*math.pi)
 
         #return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, snakeTailX, snakeTailY, minX, minY, maxX, maxY, ND, NED, ED, SED, SD, SWD, WD, NWD, distanceToFood]
-        return [snakeDir, distanceToFood, distanceToFoodX, distanceToFoodY, ND, ED, SD, WD]
+        return [snakeDir, distanceToFood, distanceToFoodX, distanceToFoodY, ND, ED, SD, WD, DFN, DFS, DFE, DFW, DFNE, DFNW, DFSE, DFSW]
 
     #Sets a state
     def game_overBot(self): self.GameEnded = True
@@ -262,7 +285,7 @@ class SnakeGameClass:
         self.snake_body.insert(0, list(self.snake_pos))
         if self.snake_pos[0] == self.food_pos[0] and self.snake_pos[1] == self.food_pos[1]:
             self.starvationTime = 0
-            self.score += 1
+            #self.score += 1
             self.food_spawn = False
         else:
             self.snake_body.pop()
