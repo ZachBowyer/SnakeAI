@@ -24,8 +24,8 @@ def reRunBestGame():
         move = bestBot.returnMove(G.getState())
         G.rerunGameLoop(move, True)
 
-modelPath = 'SavedModels/Model_6_30_30_4_Board500-500'
-load = False
+modelPath = 'SavedModels/Model_6_30_30_4_Board500-500_V3'
+load = False 
 
 #Create initial genetic algorithm population
 popSize = 100

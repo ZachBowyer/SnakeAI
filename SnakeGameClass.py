@@ -92,6 +92,17 @@ class SnakeGameClass:
         if self.direction == 'LEFT': self.snake_pos[0] -= 10
         if self.direction == 'RIGHT': self.snake_pos[0] += 10
 
+    def displayGraphics(self):
+        self.game_window.fill(self.black)
+        for pos in self.snake_body:
+            # Snake body
+            # .draw.rect(play_surface, color, xy-coordinate)
+            # xy-coordinate -> .Rect(x, y, size_x, size_y)
+            pygame.draw.rect(self.game_window, self.green, pygame.Rect(pos[0], pos[1], 10, 10))
+
+        # Snake food
+        pygame.draw.rect(self.game_window, self.white, pygame.Rect(self.food_pos[0], self.food_pos[1], 10, 10))
+
     ##################################################################################################################
     ##################################################################################################################
     ##################################################################################################################
@@ -150,15 +161,16 @@ class SnakeGameClass:
         self.spawnNewFood()
 
         # GFX
-        self.game_window.fill(self.black)
-        for pos in self.snake_body:
-            # Snake body
-            # .draw.rect(play_surface, color, xy-coordinate)
-            # xy-coordinate -> .Rect(x, y, size_x, size_y)
-            pygame.draw.rect(self.game_window, self.green, pygame.Rect(pos[0], pos[1], 10, 10))
+        #self.game_window.fill(self.black)
+        #for pos in self.snake_body:
+        #    # Snake body
+        #    # .draw.rect(play_surface, color, xy-coordinate)
+        #    # xy-coordinate -> .Rect(x, y, size_x, size_y)
+        #    pygame.draw.rect(self.game_window, self.green, pygame.Rect(pos[0], pos[1], 10, 10))
 
-        # Snake food
-        pygame.draw.rect(self.game_window, self.white, pygame.Rect(self.food_pos[0], self.food_pos[1], 10, 10))
+        ## Snake food
+        #pygame.draw.rect(self.game_window, self.white, pygame.Rect(self.food_pos[0], self.food_pos[1], 10, 10))
+        self.displayGraphics()
 
         # Game Over conditions
         # Getting out of bounds
@@ -252,16 +264,16 @@ class SnakeGameClass:
         for x in self.snake_body:
             distance = self.manhattan(snakeHeadX, snakeHeadY, x[0], x[1])
             if(x[0] == snakeHeadX and x[1] < snakeHeadY and distance < ND): 
-                if(distance == 10): deathN = 100
+                if(distance == 10 or (self.direction == 'UP' and distance == 20)): deathN = 100
                 ND = distance
             if(x[0] == snakeHeadX and x[1] > snakeHeadY and distance < SD): 
-                if(distance == 10): deathS = 100
+                if(distance == 10 or (self.direction == 'DOWN' and distance == 20)): deathS = 100
                 SD = distance
             if(x[1] == snakeHeadY and x[0] > snakeHeadX and distance < ED): 
-                if(distance == 10): deathE = 100
+                if(distance == 10 or (self.direction == 'RIGHT' and distance == 20)): deathE = 100
                 ED = distance
             if(x[1] == snakeHeadY and x[0] < snakeHeadX and distance < WD): 
-                if(distance == 10): deathW = 100
+                if(distance == 10 or (self.direction == 'LEFT' and distance == 20)): deathW = 100
                 WD = distance
 
         #Angle between the food and the snake head
@@ -325,16 +337,7 @@ class SnakeGameClass:
         self.spawnNewFood()
 
         if(displayGraphics == True):
-            # GFX
-            self.game_window.fill(self.black)
-            for pos in self.snake_body:
-                # Snake body
-                # .draw.rect(play_surface, color, xy-coordinate)
-                # xy-coordinate -> .Rect(x, y, size_x, size_y)
-                pygame.draw.rect(self.game_window, self.green, pygame.Rect(pos[0], pos[1], 10, 10))
-
-            # Snake food
-            pygame.draw.rect(self.game_window, self.white, pygame.Rect(self.food_pos[0], self.food_pos[1], 10, 10))
+            self.displayGraphics()
 
         # Game Over conditions
         # Getting out of bounds

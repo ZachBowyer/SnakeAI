@@ -4,13 +4,13 @@ from BotTest1 import BotTest1
 from SnakeGameClass import SnakeGameClass
 
 #Create bot from model
-modelPath = 'SavedModels/Model_6_30_30_4_Board500-500'
+modelPath = 'SavedModels/Model_6_30_30_4_Board500-500_V2'
 B = BotTest1()
 print("Loading Bot from file..", modelPath)
 B.loadModelFromFile(modelPath)
 
 #Create game
-G = SnakeGameClass(40, 500, 500)
+G = SnakeGameClass(80, 500, 500)
 
 #Play game
 while(G.GameEnded == False):

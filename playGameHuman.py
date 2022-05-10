@@ -3,7 +3,7 @@
 from SnakeGameClass import SnakeGameClass
 
 #Create game
-G = SnakeGameClass(2, 500, 500)
+G = SnakeGameClass(10, 500, 500)
 
 #Loop through game
 while(True):
