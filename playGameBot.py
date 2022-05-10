@@ -4,7 +4,7 @@ from BotTest1 import BotTest1
 from SnakeGameClass import SnakeGameClass
 
 #Create bot from model
-modelPath = 'SavedModels/Model_5_norm_20_20_4_Board500-500'
+modelPath = 'SavedModels/Model_6_30_30_4_Board500-500'
 B = BotTest1()
 print("Loading Bot from file..", modelPath)
 B.loadModelFromFile(modelPath)

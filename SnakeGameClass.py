@@ -135,9 +135,7 @@ class SnakeGameClass:
 
         # Moving the snake
         self.moveSnake()
-
         newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
-        print(newDistanceToFood < oldDistanceToFood)
 
         # Snake body growing mechanism
         self.snake_body.insert(0, list(self.snake_pos))
@@ -247,23 +245,23 @@ class SnakeGameClass:
         ED = self.manhattan(snakeHeadX, snakeHeadY, maxX, snakeHeadY)
         SD = self.manhattan(snakeHeadX, snakeHeadY, snakeHeadX, maxY)
         WD = self.manhattan(snakeHeadX, snakeHeadY, minX, snakeHeadY)
-        if(ND == 0): deathN = 1
-        if(SD == 0): deathS = 1
-        if(ED == 0): deathE = 1
-        if(WD == 0): deathW = 1
+        if(ND == 0 or (self.direction == 'UP' and ND == 10)): deathN = 100
+        if(SD == 0 or (self.direction == 'DOWN' and SD == 10)): deathS = 100
+        if(ED == 0 or (self.direction == 'RIGHT' and ED == 10)): deathE = 100
+        if(WD == 0 or (self.direction == 'LEFT' and WD == 10)): deathW = 100
         for x in self.snake_body:
             distance = self.manhattan(snakeHeadX, snakeHeadY, x[0], x[1])
             if(x[0] == snakeHeadX and x[1] < snakeHeadY and distance < ND): 
-                if(distance == 10): deathN = 1
+                if(distance == 10): deathN = 100
                 ND = distance
             if(x[0] == snakeHeadX and x[1] > snakeHeadY and distance < SD): 
-                if(distance == 10): deathS = 1
+                if(distance == 10): deathS = 100
                 SD = distance
             if(x[1] == snakeHeadY and x[0] > snakeHeadX and distance < ED): 
-                if(distance == 10): deathE = 1
+                if(distance == 10): deathE = 100
                 ED = distance
             if(x[1] == snakeHeadY and x[0] < snakeHeadX and distance < WD): 
-                if(distance == 10): deathW = 1
+                if(distance == 10): deathW = 100
                 WD = distance
 
         #Angle between the food and the snake head
@@ -297,14 +295,14 @@ class SnakeGameClass:
         snakeHeadY = self.snake_pos[1]
         self.HistoricalSnakePositions.append([snakeHeadX, snakeHeadY])
         self.starvationTime += 1
-        if(self.starvationTime > 60): self.game_overBot()
+        if(self.starvationTime > 250): self.game_overBot()
         oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
 
         #Making sure the snake cannot move in the opposite direction instantaneously
-        #if SuppliedDirection == 'UP' and self.direction == 'DOWN': self.score -= 9999
-        #if SuppliedDirection == 'DOWN' and self.direction == 'UP': self.score -= 9999
-        #if SuppliedDirection == 'LEFT' and self.direction == 'RIGHT': self.score -= 9999
-        #if SuppliedDirection == 'RIGHT' and self.direction == 'LEFT': self.score -= 9999
+        #if SuppliedDirection == 'UP' and self.direction == 'DOWN': print("a")
+        #if SuppliedDirection == 'DOWN' and self.direction == 'UP': print("a")
+        #if SuppliedDirection == 'LEFT' and self.direction == 'RIGHT': print("a")
+        #if SuppliedDirection == 'RIGHT' and self.direction == 'LEFT': print("a")
 
         # Moving the snake
         self.moveSnake()

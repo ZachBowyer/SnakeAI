@@ -7,5 +7,5 @@ G = SnakeGameClass(2, 500, 500)
 
 #Loop through game
 while(True):
-    print(G.getState())
     G.loopPlayer()
+    print(G.getState())
