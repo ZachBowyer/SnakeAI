@@ -15,8 +15,8 @@ class NeuralNetwork(tf.keras.Model):
         self.model = tf.keras.Sequential()
         self.model.add(keras.Input(shape=(6,)))
         #self.model.add(tf.keras.layers.Normalization(axis=1))
-        self.model.add(tf.keras.layers.Dense(30, bias_initializer=bias_initializer))
-        self.model.add(tf.keras.layers.Dense(30, bias_initializer=bias_initializer))
+        self.model.add(tf.keras.layers.Dense(40, bias_initializer=bias_initializer))
+        self.model.add(tf.keras.layers.Dense(40, bias_initializer=bias_initializer))
         self.model.add(tf.keras.layers.Dense(4, activation='softmax'))
         self.model.compile()
     

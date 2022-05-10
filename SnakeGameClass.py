@@ -5,6 +5,7 @@ import math
 #Wrapper around the Snake code supplied
 class SnakeGameClass:
 
+    ##################################################################################################################
     #Constructor
     def __init__(self, speed, sizeX, sizeY):
         self.difficulty = speed
@@ -53,6 +54,7 @@ class SnakeGameClass:
         self.score = 0
         self.GameEnded = False
     
+    ##################################################################################################################
     def game_over(self):
         self.my_font = pygame.font.SysFont('times new roman', 90)
         self.game_over_surface = self.my_font.render('YOU DIED', True, self.red)
@@ -67,6 +69,19 @@ class SnakeGameClass:
         pygame.quit()
         sys.exit()
     
+    ##################################################################################################################
+    #Return score
+    def get_score(self): return self.score
+
+    ##################################################################################################################
+    #Get list of food for a rerun if needed
+    def getHistoricalFoodList(self): return self.HistoricalFoodList
+
+    ##################################################################################################################
+    # Code we wrote, bots will use this mainly
+    def manhattan(self, X1, Y1, X2, Y2): return abs(X1-X2) + abs(Y1-Y2)    
+
+    ##################################################################################################################
     # Score
     def show_score(self, choice, color, font, size):
         self.score_font = pygame.font.SysFont(font, size)
@@ -79,6 +94,7 @@ class SnakeGameClass:
         self.game_window.blit(self.score_surface, self.score_rect)
         # pygame.display.flip()
 
+    ##################################################################################################################
     #Spawns a new piece of food
     def spawnNewFood(self):
         if not self.food_spawn:
@@ -86,12 +102,15 @@ class SnakeGameClass:
             #self.good_pos = [50, 50]
         self.food_spawn = True
     
+    ##################################################################################################################
     def moveSnake(self):
         if self.direction == 'UP': self.snake_pos[1] -= 10
         if self.direction == 'DOWN': self.snake_pos[1] += 10
         if self.direction == 'LEFT': self.snake_pos[0] -= 10
         if self.direction == 'RIGHT': self.snake_pos[0] += 10
 
+    ##################################################################################################################
+    #Prints out board, snake, food, and score
     def displayGraphics(self):
         self.game_window.fill(self.black)
         for pos in self.snake_body:
@@ -102,91 +121,31 @@ class SnakeGameClass:
 
         # Snake food
         pygame.draw.rect(self.game_window, self.white, pygame.Rect(self.food_pos[0], self.food_pos[1], 10, 10))
+        self.show_score(1, self.white, 'consolas', 20)
+        # Refresh game screen
+        pygame.display.update()
 
     ##################################################################################################################
+    #Boolean if snake has hit wall or body
+    def isGameOver(self):
+        if self.snake_pos[0] < 0 or self.snake_pos[0] > self.frame_size_x-10: self.game_overBot()
+        if self.snake_pos[1] < 0 or self.snake_pos[1] > self.frame_size_y-10: self.game_overBot()
+        # Touching the snake body
+        for block in self.snake_body[1:]:
+            if self.snake_pos[0] == block[0] and self.snake_pos[1] == block[1]:
+                return True
+        return False
+    
     ##################################################################################################################
-    ##################################################################################################################
-    ##################################################################################################################
-    ##################################################################################################################
-    ##################################################################################################################
-    #Main game loop for people playing...
-    def loopPlayer(self):
-        #self.score -= 1
-        #self.starvationTime += 1
-        #if(self.starvationTime > 200):
-        #    self.game_overBot()
-        foodX = self.food_pos[0]
-        foodY = self.food_pos[1]
-        snakeHeadX = self.snake_pos[0]
-        snakeHeadY = self.snake_pos[1]
-        self.HistoricalSnakePositions.append([snakeHeadX, snakeHeadY])
-        self.starvationTime += 1
-        if(self.starvationTime > 150): self.game_overBot()
-        oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            # Whenever a key is pressed down
-            elif event.type == pygame.KEYDOWN:
-                # W -> Up; S -> Down; A -> Left; D -> Right
-                if event.key == pygame.K_UP or event.key == ord('w'): self.change_to = 'UP'
-                if event.key == pygame.K_DOWN or event.key == ord('s'): self.change_to = 'DOWN'
-                if event.key == pygame.K_LEFT or event.key == ord('a'): self.change_to = 'LEFT'
-                if event.key == pygame.K_RIGHT or event.key == ord('d'): self.change_to = 'RIGHT'
-                # Esc -> Create event to quit the game
-                if event.key == pygame.K_ESCAPE: pygame.event.post(pygame.event.Event(pygame.QUIT))
-
-        # Making sure the snake cannot move in the opposite direction instantaneously
-        if self.change_to == 'UP' and self.direction != 'DOWN':  self.direction = 'UP'
-        if self.change_to == 'DOWN' and self.direction != 'UP': self.direction = 'DOWN'
-        if self.change_to == 'LEFT' and self.direction != 'RIGHT': self.direction = 'LEFT'
-        if self.change_to == 'RIGHT' and self.direction != 'LEFT': self.direction = 'RIGHT'
-
-        # Moving the snake
-        self.moveSnake()
-        newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
-
-        # Snake body growing mechanism
+    def checkForSnakeGrowth(self):
         self.snake_body.insert(0, list(self.snake_pos))
         if self.snake_pos[0] == self.food_pos[0] and self.snake_pos[1] == self.food_pos[1]:
-            self.score += 1
             self.starvationTime = 0
+            self.score += 1
             self.food_spawn = False
         else:
             self.snake_body.pop()
 
-        #Check if new food should be spawned
-        self.spawnNewFood()
-
-        # GFX
-        #self.game_window.fill(self.black)
-        #for pos in self.snake_body:
-        #    # Snake body
-        #    # .draw.rect(play_surface, color, xy-coordinate)
-        #    # xy-coordinate -> .Rect(x, y, size_x, size_y)
-        #    pygame.draw.rect(self.game_window, self.green, pygame.Rect(pos[0], pos[1], 10, 10))
-
-        ## Snake food
-        #pygame.draw.rect(self.game_window, self.white, pygame.Rect(self.food_pos[0], self.food_pos[1], 10, 10))
-        self.displayGraphics()
-
-        # Game Over conditions
-        # Getting out of bounds
-        if self.snake_pos[0] < 0 or self.snake_pos[0] > self.frame_size_x-10: self.game_over()
-        if self.snake_pos[1] < 0 or self.snake_pos[1] > self.frame_size_y-10: self.game_over()
-        # Touching the snake body
-        for block in self.snake_body[1:]:
-            if self.snake_pos[0] == block[0] and self.snake_pos[1] == block[1]:
-                self.game_over()
-
-        self.show_score(1, self.white, 'consolas', 20)
-        # Refresh game screen
-        pygame.display.update()
-        # Refresh rate
-        self.fps_controller.tick(self.difficulty)
-
     #####################################################################################
     #####################################################################################
     #####################################################################################
@@ -201,8 +160,6 @@ class SnakeGameClass:
     #####################################################################################
     #####################################################################################
     #####################################################################################
-    # Code we wrote, bots will use this mainly
-    def manhattan(self, X1, Y1, X2, Y2): return abs(X1-X2) + abs(Y1-Y2)
 
     # Get all relevant information (For bots)
     # Return 1D array (For neural network consistency)
@@ -290,7 +247,66 @@ class SnakeGameClass:
     def game_overBot(self): 
         self.GameEnded = True
         self.score -= 10
-    def get_score(self): return self.score
+
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
+    #Main game loop for people playing...
+    def loopPlayer(self):
+        #self.score -= 1
+        #self.starvationTime += 1
+        #if(self.starvationTime > 200):
+        #    self.game_overBot()
+        foodX = self.food_pos[0]
+        foodY = self.food_pos[1]
+        snakeHeadX = self.snake_pos[0]
+        snakeHeadY = self.snake_pos[1]
+        self.HistoricalSnakePositions.append([snakeHeadX, snakeHeadY])
+        self.starvationTime += 1
+        if(self.starvationTime > 150): self.game_overBot()
+        oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            # Whenever a key is pressed down
+            elif event.type == pygame.KEYDOWN:
+                # W -> Up; S -> Down; A -> Left; D -> Right
+                if event.key == pygame.K_UP or event.key == ord('w'): self.change_to = 'UP'
+                if event.key == pygame.K_DOWN or event.key == ord('s'): self.change_to = 'DOWN'
+                if event.key == pygame.K_LEFT or event.key == ord('a'): self.change_to = 'LEFT'
+                if event.key == pygame.K_RIGHT or event.key == ord('d'): self.change_to = 'RIGHT'
+                # Esc -> Create event to quit the game
+                if event.key == pygame.K_ESCAPE: pygame.event.post(pygame.event.Event(pygame.QUIT))
+
+        # Making sure the snake cannot move in the opposite direction instantaneously
+        if self.change_to == 'UP' and self.direction != 'DOWN': self.direction = 'UP'
+        if self.change_to == 'DOWN' and self.direction != 'UP': self.direction = 'DOWN'
+        if self.change_to == 'LEFT' and self.direction != 'RIGHT': self.direction = 'LEFT'
+        if self.change_to == 'RIGHT' and self.direction != 'LEFT': self.direction = 'RIGHT'
+
+        # Moving the snake
+        self.moveSnake()
+        newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
+
+        #Snake body growing mechanism
+        self.checkForSnakeGrowth()
+
+        #Check if new food should be spawned
+        self.spawnNewFood()
+
+        # GFX
+        self.displayGraphics()
+
+        #Check if the game is over
+        if(self.isGameOver() == True): self.game_over()
+
+        # Refresh rate
+        self.fps_controller.tick(self.difficulty)
 
     ##################################################################################################################
     ##################################################################################################################
@@ -311,10 +327,10 @@ class SnakeGameClass:
         oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
 
         #Making sure the snake cannot move in the opposite direction instantaneously
-        #if SuppliedDirection == 'UP' and self.direction == 'DOWN': print("a")
-        #if SuppliedDirection == 'DOWN' and self.direction == 'UP': print("a")
-        #if SuppliedDirection == 'LEFT' and self.direction == 'RIGHT': print("a")
-        #if SuppliedDirection == 'RIGHT' and self.direction == 'LEFT': print("a")
+        if SuppliedDirection == 'UP' and self.direction == 'DOWN': self.score -= 100
+        if SuppliedDirection == 'DOWN' and self.direction == 'UP': self.score -= 100
+        if SuppliedDirection == 'LEFT' and self.direction == 'RIGHT': self.score -= 100
+        if SuppliedDirection == 'RIGHT' and self.direction == 'LEFT': self.score -= 100
 
         # Moving the snake
         self.moveSnake()
@@ -322,36 +338,20 @@ class SnakeGameClass:
 
         newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
         if(newDistanceToFood < oldDistanceToFood): self.score += 0.01
-        #else: self.score -= 0.01
+        else: self.score -= 0.001
 
         # Snake body growing mechanism
-        self.snake_body.insert(0, list(self.snake_pos))
-        if self.snake_pos[0] == self.food_pos[0] and self.snake_pos[1] == self.food_pos[1]:
-            self.starvationTime = 0
-            self.score += 1
-            self.food_spawn = False
-        else:
-            self.snake_body.pop()
+        self.checkForSnakeGrowth()
 
         #Check if new food should be spawned
         self.spawnNewFood()
 
-        if(displayGraphics == True):
-            self.displayGraphics()
+        # GFX
+        if(displayGraphics == True): self.displayGraphics()
 
-        # Game Over conditions
-        # Getting out of bounds
-        if self.snake_pos[0] < 0 or self.snake_pos[0] > self.frame_size_x-10: self.game_overBot()
-        if self.snake_pos[1] < 0 or self.snake_pos[1] > self.frame_size_y-10: self.game_overBot()
-        # Touching the snake body
-        for block in self.snake_body[1:]:
-            if self.snake_pos[0] == block[0] and self.snake_pos[1] == block[1]:
-                self.game_overBot()
-
-        if(displayGraphics == True):
-            self.show_score(1, self.white, 'consolas', 20)
-            # Refresh game screen
-            pygame.display.update()
+        #Check if the game is over
+        if(self.isGameOver() == True): self.game_overBot()
+        
         # Refresh rate
         self.fps_controller.tick(self.difficulty)
 
@@ -376,7 +376,6 @@ class SnakeGameClass:
     ###########################################################################################
     ###########################################################################################
     # Test
-    def getHistoricalFoodList(self): return self.HistoricalFoodList
     def rerunGameInit(self, foodList):
         self.HistoricalFoodList = foodList
         self.GameEnded = False
@@ -408,53 +407,23 @@ class SnakeGameClass:
         self.direction = SuppliedDirection
 
         # Moving the snake
-        if SuppliedDirection == 'UP': self.snake_pos[1] -= 10
-        if SuppliedDirection == 'DOWN': self.snake_pos[1] += 10
-        if SuppliedDirection == 'LEFT': self.snake_pos[0] -= 10
-        if SuppliedDirection == 'RIGHT': self.snake_pos[0] += 10
+        self.moveSnake()
 
         newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
         if(newDistanceToFood < oldDistanceToFood): self.score += 0.01
         #else: self.score -= 0.01
 
-        # Snake body growing mechanism
-        self.snake_body.insert(0, list(self.snake_pos))
-        if self.snake_pos[0] == self.food_pos[0] and self.snake_pos[1] == self.food_pos[1]:
-            self.starvationTime = 0
-            self.score += 1
-            self.food_spawn = False
-        else:
-            self.snake_body.pop()
+        #Snake body growing mechanism
+        self.checkForSnakeGrowth()
 
-        # Spawning food on the screen
-        if not self.food_spawn:
-            self.food_pos = self.HistoricalFoodList.pop(0)
-        self.food_spawn = True
+        #Check if new food should be spawned
+        self.spawnNewFood()
 
-        if(displayGraphics == True):
-            # GFX
-            self.game_window.fill(self.black)
-            for pos in self.snake_body:
-                # Snake body
-                # .draw.rect(play_surface, color, xy-coordinate)
-                # xy-coordinate -> .Rect(x, y, size_x, size_y)
-                pygame.draw.rect(self.game_window, self.green, pygame.Rect(pos[0], pos[1], 10, 10))
+        #GFX
+        if(displayGraphics == True): self.displayGraphics()
+         
+        #Check if the game is over
+        if(self.isGameOver() == True): self.game_overBot()
 
-            # Snake food
-            pygame.draw.rect(self.game_window, self.white, pygame.Rect(self.food_pos[0], self.food_pos[1], 10, 10))
-
-        # Game Over conditions
-        # Getting out of bounds
-        if self.snake_pos[0] < 0 or self.snake_pos[0] > self.frame_size_x-10: self.game_overBot()
-        if self.snake_pos[1] < 0 or self.snake_pos[1] > self.frame_size_y-10: self.game_overBot()
-        # Touching the snake body
-        for block in self.snake_body[1:]:
-            if self.snake_pos[0] == block[0] and self.snake_pos[1] == block[1]:
-                self.game_overBot()
-
-        if(displayGraphics == True):
-            self.show_score(1, self.white, 'consolas', 20)
-            # Refresh game screen
-            pygame.display.update()
         # Refresh rate
         self.fps_controller.tick(30)
