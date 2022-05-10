@@ -1,8 +1,19 @@
+##################################################################################################################
+# File for the snake game framework
+# Original source code written by Rajat Dipta Biswas - https://github.com/rajatdiptabiswas/snake-pygame
+# Bot integration and abstraction by Zachary Bowyer and Jonathan Olderr
+#
+# Can run a game for a human player
+# Can run a game for a bot player
+# Can store food to replay a game
+##################################################################################################################
+#Imports
 import pygame, sys, time, random
 import numpy as np
 import math
 
-#Wrapper around the Snake code supplied
+##################################################################################################################
+# Class wrapper around the original snake code
 class SnakeGameClass:
 
     ##################################################################################################################
@@ -41,9 +52,9 @@ class SnakeGameClass:
         self.snake_body = [[100, 50], [100-10, 50], [100-(2*10), 50]]
         self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
         self.HistoricalFoodList.append(self.food_pos) 
-        #self.food_pos = [50, 50]
         self.food_spawn = True
-        
+
+        #Start snake going random direction 
         r = random.randrange(1, 5)
         if(r == 1): self.direction = 'RIGHT'
         if(r == 2): self.direction = 'UP'
@@ -55,6 +66,7 @@ class SnakeGameClass:
         self.GameEnded = False
     
     ##################################################################################################################
+    #Display a game over screen and quit the script
     def game_over(self):
         self.my_font = pygame.font.SysFont('times new roman', 90)
         self.game_over_surface = self.my_font.render('YOU DIED', True, self.red)
@@ -78,11 +90,11 @@ class SnakeGameClass:
     def getHistoricalFoodList(self): return self.HistoricalFoodList
 
     ##################################################################################################################
-    # Code we wrote, bots will use this mainly
+    #Manahattan distance between two points
     def manhattan(self, X1, Y1, X2, Y2): return abs(X1-X2) + abs(Y1-Y2)    
 
     ##################################################################################################################
-    # Score
+    #Draw score as text on screen
     def show_score(self, choice, color, font, size):
         self.score_font = pygame.font.SysFont(font, size)
         self.score_surface = self.score_font.render('Score : ' + str(round(self.score, 3)) + " - " + str(self.starvationTime), True, color)
@@ -95,14 +107,14 @@ class SnakeGameClass:
         # pygame.display.flip()
 
     ##################################################################################################################
-    #Spawns a new piece of food
+    #Spawns a new piece of food randomly on the board
     def spawnNewFood(self):
         if not self.food_spawn:
             self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
-            #self.good_pos = [50, 50]
         self.food_spawn = True
     
     ##################################################################################################################
+    #Given the current direction, move the snake
     def moveSnake(self):
         if self.direction == 'UP': self.snake_pos[1] -= 10
         if self.direction == 'DOWN': self.snake_pos[1] += 10
@@ -113,15 +125,14 @@ class SnakeGameClass:
     #Prints out board, snake, food, and score
     def displayGraphics(self):
         self.game_window.fill(self.black)
+        # Snake body
         for pos in self.snake_body:
-            # Snake body
-            # .draw.rect(play_surface, color, xy-coordinate)
-            # xy-coordinate -> .Rect(x, y, size_x, size_y)
             pygame.draw.rect(self.game_window, self.green, pygame.Rect(pos[0], pos[1], 10, 10))
 
         # Snake food
         pygame.draw.rect(self.game_window, self.white, pygame.Rect(self.food_pos[0], self.food_pos[1], 10, 10))
         self.show_score(1, self.white, 'consolas', 20)
+
         # Refresh game screen
         pygame.display.update()
 
@@ -137,6 +148,7 @@ class SnakeGameClass:
         return False
     
     ##################################################################################################################
+    #Add length to the snake if needed, else edit the tail location
     def checkForSnakeGrowth(self):
         self.snake_body.insert(0, list(self.snake_pos))
         if self.snake_pos[0] == self.food_pos[0] and self.snake_pos[1] == self.food_pos[1]:
@@ -327,15 +339,15 @@ class SnakeGameClass:
         oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
 
         #Making sure the snake cannot move in the opposite direction instantaneously
-        if SuppliedDirection == 'UP' and self.direction == 'DOWN': self.direction = 'UP'
-        if SuppliedDirection == 'DOWN' and self.direction == 'UP': self.direction = 'DOWN'
-        if SuppliedDirection == 'LEFT' and self.direction == 'RIGHT': self.direction = 'LEFT'
-        if SuppliedDirection == 'RIGHT' and self.direction == 'LEFT': self.direction = 'RIGHT'
+        if SuppliedDirection == 'UP' and self.direction == 'DOWN': self.direction = 'DOWN'
+        elif SuppliedDirection == 'DOWN' and self.direction == 'UP': self.direction = 'UP'
+        elif SuppliedDirection == 'LEFT' and self.direction == 'RIGHT': self.direction = 'RIGHT'
+        elif SuppliedDirection == 'RIGHT' and self.direction == 'LEFT': self.direction = 'LEFT'
+        else: self.direction = SuppliedDirection
 
         # Moving the snake
         self.moveSnake()
-        self.direction = SuppliedDirection
-
+        
         newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
         if(newDistanceToFood < oldDistanceToFood): self.score += 0.01
         else: self.score -= 0.001

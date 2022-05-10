@@ -1,8 +1,9 @@
+#Original source code for snake game
+#Should keep like this for reference
 """
 Snake Eater
 Made with PyGame
 """
-#Original file, should keep like this for reference
 
 import pygame, sys, time, random
 

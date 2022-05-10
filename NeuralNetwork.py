@@ -1,3 +1,15 @@
+##################################################################################################################
+# Wrapper for a tensorflow neural network
+# Uses:
+#  1. __init__      - Create predefined NN architecture
+#  2. Call          - Given inputs, run through NN and return outputs
+#  3. getWeights    - Return NN model weights/biases
+#  4. loadWeights   - Load NN weights/biases from variable
+#  5. saveToFile    - Save NN model to a tensorflow folder
+#  6. loadFromFile  - Load NN model from a tensorflow folder
+#  7. mutateWeights - Randomly adjust NN weights/biases 
+##################################################################################################################
+#Imports
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -20,21 +32,28 @@ class NeuralNetwork(tf.keras.Model):
         self.model.add(tf.keras.layers.Dense(4, activation='softmax'))
         self.model.compile()
     
+    ####################################################################################################################
     # Returns weights/biases as list of numpy arrays
     def getWeights(self): return self.model.get_weights()
 
+    ####################################################################################################################
     # Given an input, run it through network and return output
     def call(self, inputs): return self.model(inputs)
 
+    ####################################################################################################################
     #Used in creating new instances (Load weights from parent)
-    def loadWeights(self, weights):
-        self.model.set_weights(weights)
+    def loadWeights(self, weights): self.model.set_weights(weights)
 
+    ####################################################################################################################
     #Save and load model from file
     def saveToFile(self, filePath): self.model.save(filePath)
     def loadFromFile(self, filePath): self.model = keras.models.load_model(filePath)
     
+    ####################################################################################################################
     #Used for mutating child networks (Slightly change weights and biases at random)
+    #
+    # prob_change               - Probability that each node will be adjusted
+    # amountLower, amountUpper  - When a weight is mutated, it will be randomly between these values 
     def mutateWeights(self, prob_change, amountLower, amountUpper):
         prob_Integer = round(1/prob_change, 0)
 
@@ -83,7 +102,3 @@ class NeuralNetwork(tf.keras.Model):
                     newWeights.append(np.array(newWeightsOuter, dtype='float32'))
         self.model.set_weights(newWeights)
 ####################################################################################################################
-#vars = np.array([[1, 2, 3, 4]])
-#model = NeuralNetwork()
-#model.mutateWeights(0.05, 0.00001, 0.01)
-#print(model.call(vars))
