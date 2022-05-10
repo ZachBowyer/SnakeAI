@@ -24,7 +24,7 @@ def reRunBestGame():
         move = bestBot.returnMove(G.getState())
         G.rerunGameLoop(move, True)
 
-modelPath = 'SavedModels/Model_5_norm_20_20_4_Board500-500'
+modelPath = 'SavedModels/Model_6_30_30_4_Board500-500'
 load = False
 
 #Create initial genetic algorithm population

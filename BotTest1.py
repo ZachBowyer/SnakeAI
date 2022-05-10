@@ -19,8 +19,6 @@ class BotTest1:
         print("Bot somehow did not choose a direction")
         return 'DOWN'
     
-    def saveModelToFile(self, filePath):
-        self.NN.saveToFile(filePath)
-
-    def loadModelFromFile(self, filePath):
-        self.NN.loadFromFile(filePath)
+    #Save and load models with files
+    def saveModelToFile(self, filePath): self.NN.saveToFile(filePath)
+    def loadModelFromFile(self, filePath):self.NN.loadFromFile(filePath)

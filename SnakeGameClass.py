@@ -79,6 +79,19 @@ class SnakeGameClass:
         self.game_window.blit(self.score_surface, self.score_rect)
         # pygame.display.flip()
 
+    #Spawns a new piece of food
+    def spawnNewFood(self):
+        if not self.food_spawn:
+            self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
+            #self.good_pos = [50, 50]
+        self.food_spawn = True
+    
+    def moveSnake(self):
+        if self.direction == 'UP': self.snake_pos[1] -= 10
+        if self.direction == 'DOWN': self.snake_pos[1] += 10
+        if self.direction == 'LEFT': self.snake_pos[0] -= 10
+        if self.direction == 'RIGHT': self.snake_pos[0] += 10
+
     ##################################################################################################################
     ##################################################################################################################
     ##################################################################################################################
@@ -121,10 +134,7 @@ class SnakeGameClass:
         if self.change_to == 'RIGHT' and self.direction != 'LEFT': self.direction = 'RIGHT'
 
         # Moving the snake
-        if self.direction == 'UP': self.snake_pos[1] -= 10
-        if self.direction == 'DOWN': self.snake_pos[1] += 10
-        if self.direction == 'LEFT': self.snake_pos[0] -= 10
-        if self.direction == 'RIGHT': self.snake_pos[0] += 10
+        self.moveSnake()
 
         newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
         print(newDistanceToFood < oldDistanceToFood)
@@ -138,11 +148,8 @@ class SnakeGameClass:
         else:
             self.snake_body.pop()
 
-        # Spawning food on the screen
-        if not self.food_spawn:
-            self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
-            #self.good_pos = [50, 50]
-        self.food_spawn = True
+        #Check if new food should be spawned
+        self.spawnNewFood()
 
         # GFX
         self.game_window.fill(self.black)
@@ -229,17 +236,35 @@ class SnakeGameClass:
         DFSW = 0 
         if(distanceToFoodX == -distanceToFoodY and foodY > snakeHeadY): DFSW = 1 
 
+        #Bool for if going a direction will result in death the next turn 
+        deathN = 0
+        deathS = 0
+        deathE = 0
+        deathW = 0
+
         #Manhattan distance to closest gameEnder - Snake body or edge
         ND = self.manhattan(snakeHeadX, snakeHeadY, snakeHeadX, minY)
         ED = self.manhattan(snakeHeadX, snakeHeadY, maxX, snakeHeadY)
         SD = self.manhattan(snakeHeadX, snakeHeadY, snakeHeadX, maxY)
         WD = self.manhattan(snakeHeadX, snakeHeadY, minX, snakeHeadY)
+        if(ND == 0): deathN = 1
+        if(SD == 0): deathS = 1
+        if(ED == 0): deathE = 1
+        if(WD == 0): deathW = 1
         for x in self.snake_body:
             distance = self.manhattan(snakeHeadX, snakeHeadY, x[0], x[1])
-            if(x[0] == snakeHeadX and x[1] < snakeHeadY and distance < ND): ND = distance
-            if(x[0] == snakeHeadX and x[1] > snakeHeadY and distance < SD): SD = distance
-            if(x[1] == snakeHeadY and x[0] > snakeHeadX and distance < ED): ED = distance
-            if(x[1] == snakeHeadY and x[0] < snakeHeadX and distance < WD): WD = distance
+            if(x[0] == snakeHeadX and x[1] < snakeHeadY and distance < ND): 
+                if(distance == 10): deathN = 1
+                ND = distance
+            if(x[0] == snakeHeadX and x[1] > snakeHeadY and distance < SD): 
+                if(distance == 10): deathS = 1
+                SD = distance
+            if(x[1] == snakeHeadY and x[0] > snakeHeadX and distance < ED): 
+                if(distance == 10): deathE = 1
+                ED = distance
+            if(x[1] == snakeHeadY and x[0] < snakeHeadX and distance < WD): 
+                if(distance == 10): deathW = 1
+                WD = distance
 
         #Angle between the food and the snake head
         #angle = 0
@@ -247,10 +272,14 @@ class SnakeGameClass:
         #angle = angle * 360 / (2*math.pi)
 
         #return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, snakeTailX, snakeTailY, minX, minY, maxX, maxY, ND, NED, ED, SED, SD, SWD, WD, NWD, distanceToFood]
-        return [snakeDir, snakeHeadX, snakeHeadY, distanceToFoodX, distanceToFoodY]
+        #return [snakeDir, snakeHeadX, snakeHeadY, distanceToFoodX, distanceToFoodY, ND, ED, SD, WD]
+        #return [ND, ED, SD, WD, DFN, DFS, DFE, DFW, DFNE, DFNW, DFSE, DFSW]
+        return [distanceToFoodX, distanceToFoodY, deathN, deathS, deathE, deathW]
 
     #Sets a state
-    def game_overBot(self): self.GameEnded = True
+    def game_overBot(self): 
+        self.GameEnded = True
+        self.score -= 10
     def get_score(self): return self.score
 
     ##################################################################################################################
@@ -261,9 +290,6 @@ class SnakeGameClass:
     ##################################################################################################################
     #Game loop for bots
     def loopBot(self, SuppliedDirection, displayGraphics):
-        
-        #else: self.score -= 0.01
-        #self.score += 0.01
         #Force bot to make moves towards food to survive...
         foodX = self.food_pos[0]
         foodY = self.food_pos[1]
@@ -271,20 +297,17 @@ class SnakeGameClass:
         snakeHeadY = self.snake_pos[1]
         self.HistoricalSnakePositions.append([snakeHeadX, snakeHeadY])
         self.starvationTime += 1
-        if(self.starvationTime > 150): self.game_overBot()
+        if(self.starvationTime > 60): self.game_overBot()
         oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
 
         #Making sure the snake cannot move in the opposite direction instantaneously
-        if SuppliedDirection == 'UP' and self.direction == 'DOWN': self.score -= 9999
-        if SuppliedDirection == 'DOWN' and self.direction == 'UP': self.score -= 9999
-        if SuppliedDirection == 'LEFT' and self.direction == 'RIGHT': self.score -= 9999
-        if SuppliedDirection == 'RIGHT' and self.direction == 'LEFT': self.score -= 9999
+        #if SuppliedDirection == 'UP' and self.direction == 'DOWN': self.score -= 9999
+        #if SuppliedDirection == 'DOWN' and self.direction == 'UP': self.score -= 9999
+        #if SuppliedDirection == 'LEFT' and self.direction == 'RIGHT': self.score -= 9999
+        #if SuppliedDirection == 'RIGHT' and self.direction == 'LEFT': self.score -= 9999
 
         # Moving the snake
-        if SuppliedDirection == 'UP': self.snake_pos[1] -= 10
-        if SuppliedDirection == 'DOWN': self.snake_pos[1] += 10
-        if SuppliedDirection == 'LEFT': self.snake_pos[0] -= 10
-        if SuppliedDirection == 'RIGHT': self.snake_pos[0] += 10
+        self.moveSnake()
         self.direction = SuppliedDirection
 
         newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
@@ -295,16 +318,13 @@ class SnakeGameClass:
         self.snake_body.insert(0, list(self.snake_pos))
         if self.snake_pos[0] == self.food_pos[0] and self.snake_pos[1] == self.food_pos[1]:
             self.starvationTime = 0
-            #self.score += 1
+            self.score += 1
             self.food_spawn = False
         else:
             self.snake_body.pop()
 
-        # Spawning food on the screen
-        if not self.food_spawn:
-            self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
-            self.HistoricalFoodList.append(self.food_pos) 
-        self.food_spawn = True
+        #Check if new food should be spawned
+        self.spawnNewFood()
 
         if(displayGraphics == True):
             # GFX
