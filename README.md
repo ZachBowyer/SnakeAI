@@ -54,7 +54,7 @@ For this program, we implemented an AI that could play the game snake.
 >> Moving away from food subtracts a score of 0.001
 
 ## Results
-> Insert video here?
+> Insert video here?  
 > Our best snake was able to get a score of 57  
 > Average fitness of generation up to 23  
 
