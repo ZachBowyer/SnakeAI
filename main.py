@@ -24,7 +24,7 @@ bestBot = BotTest1()
 
 #Information for saving/loading bots
 modelPath = 'SavedModels/Model_6_20_20_4_Board500-500'
-load = False 
+load = True 
 
 # 1. Create initial population of genetic algorithm
 popSize = 100
