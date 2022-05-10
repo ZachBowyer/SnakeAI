@@ -1,17 +1,21 @@
+##################################################################################################################
+# File for training the AI
+#   1. Create initial population of genetic algorithm
+#       (Can load from tensorflow model file or start from scratch)
+#   2. Evaluate all population members (Run through games for each of them)
+#       Keep track of best performance globaly, and save to file when new best is found
+#   3. Sort population on best fitness
+#   4. Run sample game of the best of that generation (optional)
+#   5. Remove the worst performers (Bottom half of population usually)
+#   6. Create child population from surviving parents (Asexual)
+#   7. Step 2 (Control-c to stop the program)
+##################################################################################################################
+#Imports
 from SnakeGameClass import SnakeGameClass
 from RandomBot import RandomBot
 from BotTest1 import BotTest1
 import copy
-
-
-#B = BotTest1()
-#B2 = BotTest1()
-#B2.getNN().loadWeights(B.getNN().getWeights())
-#B2.getNN().mutateWeights(1, 0.001, 0.1)
-#print(B.getNN().getWeights())
-#print("-------------")
-#print(B2.getNN().getWeights())
-
+##################################################################################################################
 #Information for re-running the best game recorded
 currentHighestScore = -9999999
 bestFoodList = []
@@ -24,7 +28,7 @@ def reRunBestGame():
         move = bestBot.returnMove(G.getState())
         G.rerunGameLoop(move, True)
 
-modelPath = 'SavedModels/Model_6_40_40_4_Board500-500'
+modelPath = 'SavedModels/Model_6_20_20_4_Board500-500'
 load = False 
 
 #Create initial genetic algorithm population

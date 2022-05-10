@@ -327,10 +327,10 @@ class SnakeGameClass:
         oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
 
         #Making sure the snake cannot move in the opposite direction instantaneously
-        if SuppliedDirection == 'UP' and self.direction == 'DOWN': self.score -= 100
-        if SuppliedDirection == 'DOWN' and self.direction == 'UP': self.score -= 100
-        if SuppliedDirection == 'LEFT' and self.direction == 'RIGHT': self.score -= 100
-        if SuppliedDirection == 'RIGHT' and self.direction == 'LEFT': self.score -= 100
+        if SuppliedDirection == 'UP' and self.direction == 'DOWN': self.direction = 'UP'
+        if SuppliedDirection == 'DOWN' and self.direction == 'UP': self.direction = 'DOWN'
+        if SuppliedDirection == 'LEFT' and self.direction == 'RIGHT': self.direction = 'LEFT'
+        if SuppliedDirection == 'RIGHT' and self.direction == 'LEFT': self.direction = 'RIGHT'
 
         # Moving the snake
         self.moveSnake()
