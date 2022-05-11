@@ -23,6 +23,7 @@ class SnakeGameClass:
         self.frame_size_x = sizeX
         self.frame_size_y = sizeY
         self.starvationTime = 0
+        self.maxStarvationTime = 250
         # Checks for errors encountered
         check_errors = pygame.init()
         # pygame.init() example output -> (6, 0)
@@ -97,7 +98,7 @@ class SnakeGameClass:
     #Draw score as text on screen
     def show_score(self, choice, color, font, size):
         self.score_font = pygame.font.SysFont(font, size)
-        self.score_surface = self.score_font.render('Score : ' + str(round(self.score, 3)) + " - " + str(self.starvationTime), True, color)
+        self.score_surface = self.score_font.render('Score : ' + str(round(self.score, 3)) + " - " + str(self.starvationTime) + "/" + str(self.maxStarvationTime), True, color)
         self.score_rect = self.score_surface.get_rect()
         if choice == 1:
             self.score_rect.midtop = (self.frame_size_x/4, 15)
@@ -139,8 +140,8 @@ class SnakeGameClass:
     ##################################################################################################################
     #Boolean if snake has hit wall or body
     def isGameOver(self):
-        if self.snake_pos[0] < 0 or self.snake_pos[0] > self.frame_size_x-10: self.game_overBot()
-        if self.snake_pos[1] < 0 or self.snake_pos[1] > self.frame_size_y-10: self.game_overBot()
+        if self.snake_pos[0] < 0 or self.snake_pos[0] > self.frame_size_x-10: return True
+        if self.snake_pos[1] < 0 or self.snake_pos[1] > self.frame_size_y-10: return True
         # Touching the snake body
         for block in self.snake_body[1:]:
             if self.snake_pos[0] == block[0] and self.snake_pos[1] == block[1]:
@@ -153,6 +154,7 @@ class SnakeGameClass:
         self.snake_body.insert(0, list(self.snake_pos))
         if self.snake_pos[0] == self.food_pos[0] and self.snake_pos[1] == self.food_pos[1]:
             self.starvationTime = 0
+            self.maxStarvationTime += 5
             self.score += 1
             self.food_spawn = False
         else:
@@ -188,6 +190,8 @@ class SnakeGameClass:
         snakeHeadY = self.snake_pos[1]
         snakeTailX = self.snake_body[len(self.snake_body)-1][0]
         snakeTailY = self.snake_body[len(self.snake_body)-1][1]
+        snakeMidX = self.snake_body[int(len(self.snake_body) / 2) + 1][0]
+        snakeMidY = self.snake_body[int(len(self.snake_body) / 2) + 1][1]
         minX = 0
         minY = 0
         maxX = self.frame_size_x-10
@@ -245,15 +249,23 @@ class SnakeGameClass:
                 if(distance == 10 or (self.direction == 'LEFT' and distance == 20)): deathW = 100
                 WD = distance
 
-        #Angle between the food and the snake head
-        #angle = 0
-        #angle = math.atan2(snakeHeadY, snakeHeadX) - math.atan2(foodY, foodX)
-        #angle = angle * 360 / (2*math.pi)
+        timeRemaining = self.maxStarvationTime - self.starvationTime
+        numPointsAroundHead = 0
+        numPointsAroundMid = 0
+        numPointsAroundTail = 0
+        numPointsAroundFood = 0
 
-        #return [snakeDir, foodX, foodY, snakeHeadX, snakeHeadY, snakeTailX, snakeTailY, minX, minY, maxX, maxY, ND, NED, ED, SED, SD, SWD, WD, NWD, distanceToFood]
-        #return [snakeDir, snakeHeadX, snakeHeadY, distanceToFoodX, distanceToFoodY, ND, ED, SD, WD]
-        #return [ND, ED, SD, WD, DFN, DFS, DFE, DFW, DFNE, DFNW, DFSE, DFSW]
-        return [distanceToFoodX, distanceToFoodY, deathN, deathS, deathE, deathW]
+        for x in self.snake_body:
+            distanceH = self.manhattan(snakeHeadX, snakeHeadY, x[0], x[1])
+            distanceM = self.manhattan(snakeMidX, snakeMidY, x[0], x[1])
+            distanceT = self.manhattan(snakeTailX, snakeTailY, x[0], x[1])
+            distanceF = self.manhattan(foodX, foodY, x[0], x[1])
+            if(distanceH) < 50: numPointsAroundHead += 1
+            if(distanceM) < 50: numPointsAroundMid += 1
+            if(distanceT) < 50: numPointsAroundTail += 1
+            if(distanceF) < 50: numPointsAroundFood += 1
+
+        return [distanceToFoodX, distanceToFoodY, deathN, deathS, deathE, deathW, numPointsAroundHead, numPointsAroundMid, numPointsAroundTail, numPointsAroundFood]
 
     #Sets a state
     def game_overBot(self): 
@@ -277,8 +289,6 @@ class SnakeGameClass:
         snakeHeadX = self.snake_pos[0]
         snakeHeadY = self.snake_pos[1]
         self.HistoricalSnakePositions.append([snakeHeadX, snakeHeadY])
-        self.starvationTime += 1
-        if(self.starvationTime > 150): self.game_overBot()
         oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
 
         for event in pygame.event.get():
@@ -303,7 +313,6 @@ class SnakeGameClass:
 
         # Moving the snake
         self.moveSnake()
-        newDistanceToFood = self.manhattan(self.snake_pos[0], self.snake_pos[1], foodX, foodY)
 
         #Snake body growing mechanism
         self.checkForSnakeGrowth()
@@ -335,7 +344,7 @@ class SnakeGameClass:
         snakeHeadY = self.snake_pos[1]
         self.HistoricalSnakePositions.append([snakeHeadX, snakeHeadY])
         self.starvationTime += 1
-        if(self.starvationTime > 250): self.game_overBot()
+        if(self.starvationTime > self.maxStarvationTime): self.game_overBot()
         oldDistanceToFood = self.manhattan(snakeHeadX, snakeHeadY, foodX, foodY)
 
         #Making sure the snake cannot move in the opposite direction instantaneously

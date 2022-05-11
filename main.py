@@ -23,7 +23,7 @@ currentHighestScore = -9999999
 bestBot = BotTest1()
 
 #Information for saving/loading bots
-modelPath = 'SavedModels/Model_6_20_20_4_Board500-500'
+modelPath = 'SavedModels/Model_10_30_30_4_Board500-500'
 load = True 
 
 # 1. Create initial population of genetic algorithm
@@ -62,7 +62,7 @@ while(True):
     G = SnakeGameClass(70, 500, 500)
     while(G.GameEnded == False):
         move = populationBots[len(populationBots)-1][0].returnMove(G.getState())
-        G.loopBot(move, True)
+        G.loopBot(move, False)
 
     #5. Remove the worst performers (Bottom half of population usually)
     for i in range(len(populationBots) - int(popSize/2)): populationBots.pop(0)
