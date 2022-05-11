@@ -16,6 +16,7 @@ from SnakeGameClass import SnakeGameClass
 from RandomBot import RandomBot
 from BotTest1 import BotTest1
 import copy
+import time
 
 ##################################################################################################################
 #Information for re-running the best game recorded
@@ -23,7 +24,7 @@ currentHighestScore = -9999999
 bestBot = BotTest1()
 
 #Information for saving/loading bots
-modelPath = 'SavedModels/Model_10_30_30_4_Board500-500'
+modelPath = 'SavedModels/Model_10_30_30_4_Board500-500_V3'
 load = True 
 
 # 1. Create initial population of genetic algorithm
@@ -39,10 +40,10 @@ for i in range(popSize):
 ##################################################################################################################
 #Main training loop for the genetic algorithm/neural network
 while(True):
-
+    start = time.time()
     #2.Evaluate all population members (Run through games for each of them)
     for i in range(popSize):
-        G = SnakeGameClass(99999, 500, 500)
+        G = SnakeGameClass(999999999999, 500, 500)
         while(G.GameEnded == False):
             move = populationBots[i][0].returnMove(G.getState())
             G.loopBot(move, False)
@@ -71,7 +72,7 @@ while(True):
     avgFitness = 0
     for i in range(len(populationBots)): avgFitness += populationBots[i][1]
     avgFitness /= len(populationBots)
-    print("Average fitness of this generation is:", avgFitness)
+    print("Average fitness of generation:", avgFitness, "executed in", time.time() - start, "seconds")
 
     #8. Create child population from surviving parents (Asexual)
     for i in range(10):

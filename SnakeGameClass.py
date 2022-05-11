@@ -23,7 +23,7 @@ class SnakeGameClass:
         self.frame_size_x = sizeX
         self.frame_size_y = sizeY
         self.starvationTime = 0
-        self.maxStarvationTime = 250
+        self.maxStarvationTime = 150
         # Checks for errors encountered
         check_errors = pygame.init()
         # pygame.init() example output -> (6, 0)
@@ -154,7 +154,7 @@ class SnakeGameClass:
         self.snake_body.insert(0, list(self.snake_pos))
         if self.snake_pos[0] == self.food_pos[0] and self.snake_pos[1] == self.food_pos[1]:
             self.starvationTime = 0
-            self.maxStarvationTime += 5
+            self.maxStarvationTime += 2
             self.score += 1
             self.food_spawn = False
         else:
