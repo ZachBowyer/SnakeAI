@@ -111,7 +111,13 @@ class SnakeGameClass:
     #Spawns a new piece of food randomly on the board
     def spawnNewFood(self):
         if not self.food_spawn:
-            self.food_pos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
+            attempts = 0
+            newFoodPos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
+            while(newFoodPos in self.snake_body):
+                if(attempts > 10): print("Could not find place for snake food in", attempts, "attempts")
+                newFoodPos = [random.randrange(1, (self.frame_size_x//10)) * 10, random.randrange(1, (self.frame_size_y//10)) * 10]
+                attempts += 1
+            self.food_pos = newFoodPos
         self.food_spawn = True
     
     ##################################################################################################################
