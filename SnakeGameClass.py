@@ -24,6 +24,7 @@ class SnakeGameClass:
         self.frame_size_y = sizeY
         self.starvationTime = 0
         self.maxStarvationTime = 150
+        self.numberEaten = 0
         # Checks for errors encountered
         check_errors = pygame.init()
         # pygame.init() example output -> (6, 0)
@@ -85,6 +86,10 @@ class SnakeGameClass:
     ##################################################################################################################
     #Return score
     def get_score(self): return self.score
+
+    ##################################################################################################################
+    #Return number of food the snake ate
+    def getNumEat(self): return self.numberEaten
 
     ##################################################################################################################
     #Get list of food for a rerun if needed
@@ -162,6 +167,7 @@ class SnakeGameClass:
             self.starvationTime = 0
             self.maxStarvationTime += 2
             self.score += 1
+            self.numberEaten += 1
             self.food_spawn = False
         else:
             self.snake_body.pop()
@@ -271,7 +277,7 @@ class SnakeGameClass:
             if(distanceT) < 50: numPointsAroundTail += 1
             if(distanceF) < 50: numPointsAroundFood += 1
 
-        return [distanceToFoodX, distanceToFoodY, deathN, deathS, deathE, deathW, numPointsAroundHead, numPointsAroundMid, numPointsAroundTail, numPointsAroundFood]
+        return [distanceToFoodX, distanceToFoodY, deathN, deathS, deathE, deathW, numPointsAroundHead, numPointsAroundMid, numPointsAroundTail, numPointsAroundFood, timeRemaining]
 
     #Sets a state
     def game_overBot(self): 
