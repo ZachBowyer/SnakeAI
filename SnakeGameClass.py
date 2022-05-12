@@ -213,6 +213,9 @@ class SnakeGameClass:
         distanceToFoodX = snakeHeadX - foodX
         distanceToFoodY = snakeHeadY - foodY
 
+        distanceTailX = snakeHeadX - snakeTailX
+        distanceTailY = snakeHeadY - snakeTailY
+
         #Check if snake is in a direct line to food
         DFN = 0 
         if(snakeHeadX == foodX and foodY < snakeHeadY): DFN = 1
@@ -277,7 +280,7 @@ class SnakeGameClass:
             if(distanceT) < 50: numPointsAroundTail += 1
             if(distanceF) < 50: numPointsAroundFood += 1
 
-        return [distanceToFoodX, distanceToFoodY, deathN, deathS, deathE, deathW, numPointsAroundHead, numPointsAroundMid, numPointsAroundTail, numPointsAroundFood, timeRemaining]
+        return [distanceToFoodX, distanceToFoodY, distanceTailX, distanceTailY, deathN, deathS, deathE, deathW, numPointsAroundHead, numPointsAroundFood]
 
     #Sets a state
     def game_overBot(self): 

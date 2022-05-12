@@ -24,8 +24,8 @@ currentHighestScore = -9999999
 bestBot = BotTest1()
 
 #Information for saving/loading bots
-modelPath = 'SavedModels/Model_11_10_10_4_Board500-500.h5'
-load = True 
+modelPath = 'SavedModels/Model_10_30_30_4_Board500-500_V5.h5'
+load = False 
 
 # 1. Create initial population of genetic algorithm
 popSize = 100
@@ -50,11 +50,11 @@ while(True):
         populationBots[i][1] = G.get_score()
 
         #Store info about best bot and game
-        if(G.get_score() > currentHighestScore):
-            print("High score model, saving to..", modelPath)
-            currentHighestScore = G.get_score()
-            bestBot = populationBots[i][0]
-            bestBot.saveModelToFile(modelPath)
+        #if(G.get_score() > currentHighestScore):
+        #    print("High score model, saving to..", modelPath)
+        #    currentHighestScore = G.get_score()
+        #    bestBot = populationBots[i][0]
+        #    bestBot.saveModelToFile(modelPath)
 
     #3. Sort population on best fitness
     populationBots = sorted(populationBots, key=lambda x: x[1], reverse=False)
@@ -73,6 +73,8 @@ while(True):
     for i in range(len(populationBots)): avgFitness += populationBots[i][1]
     avgFitness /= len(populationBots)
     print("Average fitness of generation:", avgFitness, "executed in", time.time() - start, "seconds")
+    print("Saving best of this iteration with score of", populationBots[len(populationBots)-1][1], "to:", modelPath)
+    populationBots[len(populationBots)-1][0].saveModelToFile(modelPath)
 
     #8. Create child population from surviving parents (Asexual)
     for i in range(10):
