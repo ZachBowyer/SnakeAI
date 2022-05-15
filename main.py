@@ -24,7 +24,7 @@ currentHighestScore = -9999999
 bestBot = BotTest1()
 
 #Information for saving/loading bots
-modelPath = 'SavedModels/Model_10_30_30_4_Board500-500_V5.h5'
+modelPath = 'SavedModels/Model_22_40_4_Board500-500_V5.h5'
 load = False 
 
 # 1. Create initial population of genetic algorithm

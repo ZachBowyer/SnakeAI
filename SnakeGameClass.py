@@ -217,22 +217,22 @@ class SnakeGameClass:
         distanceTailY = snakeHeadY - snakeTailY
 
         #Check if snake is in a direct line to food
-        DFN = 0 
-        if(snakeHeadX == foodX and foodY < snakeHeadY): DFN = 1
-        DFS = 0 
-        if(snakeHeadX == foodX and foodY > snakeHeadY): DFS = 1
-        DFE = 0 
-        if(snakeHeadY == foodY and foodX > snakeHeadX): DFE = 1
-        DFW = 0 
-        if(snakeHeadY == foodY and foodX < snakeHeadX): DFW = 1
-        DFNE = 0 
-        if(distanceToFoodX == -distanceToFoodY and foodY < snakeHeadY): DFNE = 1 
-        DFNW = 0 
-        if(distanceToFoodX == distanceToFoodY and foodY < snakeHeadY): DFNW = 1 
-        DFSE = 0 
-        if(distanceToFoodX == distanceToFoodY and foodY > snakeHeadY): DFSE = 1 
-        DFSW = 0 
-        if(distanceToFoodX == -distanceToFoodY and foodY > snakeHeadY): DFSW = 1 
+        #DFN = 0 
+        #if(snakeHeadX == foodX and foodY < snakeHeadY): DFN = 1
+        #DFS = 0 
+        #if(snakeHeadX == foodX and foodY > snakeHeadY): DFS = 1
+        #DFE = 0 
+        #if(snakeHeadY == foodY and foodX > snakeHeadX): DFE = 1
+        #DFW = 0 
+        #if(snakeHeadY == foodY and foodX < snakeHeadX): DFW = 1
+        #DFNE = 0 
+        #if(distanceToFoodX == -distanceToFoodY and foodY < snakeHeadY): DFNE = 1 
+        #DFNW = 0 
+        #if(distanceToFoodX == distanceToFoodY and foodY < snakeHeadY): DFNW = 1 
+        #DFSE = 0 
+        #if(distanceToFoodX == distanceToFoodY and foodY > snakeHeadY): DFSE = 1 
+        #DFSW = 0 
+        #if(distanceToFoodX == -distanceToFoodY and foodY > snakeHeadY): DFSW = 1 
 
         #Bool for if going a direction will result in death the next turn 
         deathN = 0
@@ -264,23 +264,51 @@ class SnakeGameClass:
                 if(distance == 10 or (self.direction == 'LEFT' and distance == 20)): deathW = 100
                 WD = distance
 
-        timeRemaining = self.maxStarvationTime - self.starvationTime
-        numPointsAroundHead = 0
-        numPointsAroundMid = 0
-        numPointsAroundTail = 0
-        numPointsAroundFood = 0
+        #timeRemaining = self.maxStarvationTime - self.starvationTime
+        #numPointsAroundHead = 0
+        #numPointsAroundMid = 0
+        #numPointsAroundTail = 0
+        #numPointsAroundFood = 0
 
-        for x in self.snake_body:
-            distanceH = self.manhattan(snakeHeadX, snakeHeadY, x[0], x[1])
-            distanceM = self.manhattan(snakeMidX, snakeMidY, x[0], x[1])
-            distanceT = self.manhattan(snakeTailX, snakeTailY, x[0], x[1])
-            distanceF = self.manhattan(foodX, foodY, x[0], x[1])
-            if(distanceH) < 50: numPointsAroundHead += 1
-            if(distanceM) < 50: numPointsAroundMid += 1
-            if(distanceT) < 50: numPointsAroundTail += 1
-            if(distanceF) < 50: numPointsAroundFood += 1
+        #for x in self.snake_body:
+        #    distanceH = self.manhattan(snakeHeadX, snakeHeadY, x[0], x[1])
+        #    distanceM = self.manhattan(snakeMidX, snakeMidY, x[0], x[1])
+        #    distanceT = self.manhattan(snakeTailX, snakeTailY, x[0], x[1])
+        #    distanceF = self.manhattan(foodX, foodY, x[0], x[1])
+        #    if(distanceH) < 50: numPointsAroundHead += 1
+        #    if(distanceM) < 50: numPointsAroundMid += 1
+        #    if(distanceT) < 50: numPointsAroundTail += 1
+        #    if(distanceF) < 50: numPointsAroundFood += 1
 
-        return [distanceToFoodX, distanceToFoodY, distanceTailX, distanceTailY, deathN, deathS, deathE, deathW, numPointsAroundHead, numPointsAroundFood]
+        #Get array of size 2500 (50*50) of all points on the board. Then it will store 0, 1, 2 if theres nothing, food, or snake
+        #pixelArr = []
+        #for i in range(0, 50):
+        #    for j in range(0, 50):
+        #        coord = [i*10, j*10]
+        #        if(coord in self.snake_body): pixelArr.append(1)
+        #        elif(coord == self.food_pos): pixelArr.append(2)
+        #        else: pixelArr.append(0)
+
+        #Get 4x4 area around the snake. Then it will store 0, 100, 200, 300 if theres nothing, food, body, head
+        relativeSnakePixels = []
+        X = snakeHeadX - 20
+        Y = snakeHeadY - 20
+        for i in range(4):
+            X = snakeHeadX - 20
+            for j in range(4):
+                coord = [X, Y]
+                if(coord == self.food_pos): relativeSnakePixels.append(1)
+                elif(coord == self.snake_pos): relativeSnakePixels.append(2)
+                elif(coord in self.snake_body): relativeSnakePixels.append(3)
+                elif(X < minX or X > maxX or Y < minY or Y > maxY): relativeSnakePixels.append(3)
+                else: relativeSnakePixels.append(0)
+                X += 10
+            Y += 10
+        #print(relativeSnakePixels)
+        #return relativeSnakePixels
+        #return [distanceToFoodX, distanceToFoodY, deathN, deathS, deathE, deathW] + relativeSnakePixels
+        #return [distanceToFoodX, distanceToFoodY, distanceTailX, distanceTailY, deathN, deathS, deathE, deathW]
+        return [distanceToFoodX, distanceToFoodY, deathN, deathS, deathE, deathW] + relativeSnakePixels
 
     #Sets a state
     def game_overBot(self): 

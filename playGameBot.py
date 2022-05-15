@@ -5,13 +5,13 @@ from SnakeGameClass import SnakeGameClass
 import time
 
 #Create bot from model
-modelPath = 'SavedModels/Model_11_10_10_4_Board500-500.h5'
+modelPath = 'SavedModels/Model_22_40_4_Board500-500_V5.h5'
 B = BotTest1()
 print("Loading Bot from file..", modelPath)
 B.loadModelFromFile(modelPath)
 
 #Create game
-G = SnakeGameClass(400, 500, 500)
+G = SnakeGameClass(100, 500, 500)
 
 #Play game
 print("Starting game")
