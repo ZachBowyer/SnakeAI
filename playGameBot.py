@@ -11,7 +11,7 @@ print("Loading Bot from file..", modelPath)
 B.loadModelFromFile(modelPath)
 
 #Create game
-G = SnakeGameClass(100, 500, 500)
+G = SnakeGameClass(50, 500, 500)
 
 #Play game
 print("Starting game")
